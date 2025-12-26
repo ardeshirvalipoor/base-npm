@@ -1,4 +1,4 @@
-import { Page } from '@codesuma/baseline'
+import { Page, Div, H1, Button } from "../../baseline/index"
 import { PageHeader } from '../shared/page-header'
 import { MenuItem } from './shared/item'
 

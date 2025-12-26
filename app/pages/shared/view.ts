@@ -1,4 +1,4 @@
-import { Div } from "@codesuma/baseline";
+import { Base, Div } from "../../baseline/index";
 
 export const View = () => {
 

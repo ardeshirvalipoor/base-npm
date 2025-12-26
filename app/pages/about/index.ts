@@ -1,4 +1,4 @@
-import { Page, Div, IRouteEvent } from '@codesuma/baseline'
+import { Page, Div } from "@codesuma/baseline"
 import { PageHeader } from '../shared/page-header'
 
 export const AboutPage = () => {

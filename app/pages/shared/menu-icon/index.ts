@@ -1,4 +1,4 @@
-import { Base, router } from '@codesuma/baseline'
+import { Base, router } from "../../baseline/index"
 import { Bar } from './bar'
 import styles from './index.module.css'
 
