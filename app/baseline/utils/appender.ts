@@ -118,10 +118,10 @@ export function createAppender(base: AnyComponent): IAppender {
             if (base.parent) {
                 base.parent.setChildren(base.parent.getChildren().filter(c => c !== base))
             }
+            base.emit('unmounted')
             base.removeAllListeners()
             pendingRoots.delete(base)
             base.el.remove()
-            base.emit('unmounted')
         }
     }
 }

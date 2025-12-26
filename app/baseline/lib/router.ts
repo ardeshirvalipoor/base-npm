@@ -11,6 +11,7 @@ export interface IRouteEvent {
     from: string
     data?: any
     isBack?: boolean  // True if navigating via back button
+    to?: string
 }
 
 interface RouteConfig {
@@ -82,6 +83,7 @@ const navigate = async (to: string, data?: any) => {
             params: {},
             query: getQuery(),
             from: currentPath,
+            to: path,
             data,
             isBack
         })
@@ -112,6 +114,7 @@ const navigate = async (to: string, data?: any) => {
         params: match.params,
         query: getQuery(),
         from,
+        to: path,
         data,
         isBack
     })
@@ -121,6 +124,7 @@ const navigate = async (to: string, data?: any) => {
         params: match.params,
         query: getQuery(),
         from,
+        to: path,
         data,
         isBack
     })

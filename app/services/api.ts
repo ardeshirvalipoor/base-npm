@@ -1,7 +1,7 @@
-import ldb from '../base/lib/ldb'
+import ldb from '../baseline/lib/ldb'
 
 function getHeader() {
-    
+
     return {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + ldb.get('rankr-user')?.token,

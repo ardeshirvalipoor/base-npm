@@ -283,10 +283,10 @@
                 if (base.parent) {
                     base.parent.setChildren(base.parent.getChildren().filter(function (c) { return c !== base; }));
                 }
+                base.emit('unmounted');
                 base.removeAllListeners();
                 pendingRoots.delete(base);
                 base.el.remove();
-                base.emit('unmounted');
             }
         };
     }
@@ -444,6 +444,7 @@
     var Page = function () {
         var base = Div();
         base.addClass(styles$5.page); // Initial state is hidden below (in CSS)
+        base.el.setAttribute('aria-hidden', 'true');
         // Enter: direction based on isBack flag
         base.on('enter', function (_a) {
             var isBack = _a.isBack;
@@ -469,6 +470,7 @@
                             base.removeClass(styles$5.exitUp, styles$5.exitDown, styles$5.hiddenBelow, styles$5.hiddenAbove);
                             // Add enter class (same visual result, but positioned correctly before)
                             base.addClass(isBack ? styles$5.enterDown : styles$5.enterUp);
+                            base.el.setAttribute('aria-hidden', 'false');
                             return [2 /*return*/];
                     }
                 });
@@ -490,11 +492,10 @@
                                 // Forward: current page goes UP
                                 base.addClass(styles$5.exitUp);
                             }
-                            return [4 /*yield*/, waitFor(TRANSITION_DURATION)
-                                // Position for next enter
-                            ];
+                            return [4 /*yield*/, waitFor(TRANSITION_DURATION)];
                         case 1:
                             _b.sent();
+                            base.el.setAttribute('aria-hidden', 'true');
                             // Position for next enter
                             if (isBack) {
                                 // After exiting down, position below for next forward enter
@@ -587,6 +588,7 @@
                     params: {},
                     query: getQuery(),
                     from: currentPath,
+                    to: path,
                     data: data,
                     isBack: isBack
                 });
@@ -612,6 +614,7 @@
                 params: match.params,
                 query: getQuery(),
                 from: from,
+                to: path,
                 data: data,
                 isBack: isBack
             });
@@ -620,6 +623,7 @@
                 params: match.params,
                 query: getQuery(),
                 from: from,
+                to: path,
                 data: data,
                 isBack: isBack
             });

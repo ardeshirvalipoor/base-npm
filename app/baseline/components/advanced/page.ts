@@ -10,6 +10,7 @@ const TRANSITION_DURATION = 160
 export const Page = () => {
     const base = Div()
     base.addClass(styles.page)  // Initial state is hidden below (in CSS)
+    base.el.setAttribute('aria-hidden', 'true')
 
     // Enter: direction based on isBack flag
     base.on('enter', async ({ isBack }: IRouteEvent) => {
@@ -32,6 +33,7 @@ export const Page = () => {
         )
         // Add enter class (same visual result, but positioned correctly before)
         base.addClass(isBack ? styles.enterDown : styles.enterUp)
+        base.el.setAttribute('aria-hidden', 'false')
     })
 
     // Exit: direction based on isBack flag
@@ -45,6 +47,8 @@ export const Page = () => {
             base.addClass(styles.exitUp)
         }
         await waitFor(TRANSITION_DURATION)
+
+        base.el.setAttribute('aria-hidden', 'true')
 
         // Position for next enter
         if (isBack) {

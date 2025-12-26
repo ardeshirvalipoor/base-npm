@@ -1,6 +1,6 @@
-import idb from '../base/lib/idb'
-import ldb from '../base/lib/ldb'
-import { emitter } from '../base/utils/emitter'
+import idb from '../baseline/lib/idb'
+import ldb from '../baseline/lib/ldb'
+import { emitter } from '../baseline/utils/emitter'
 
 const db = idb('db')
 

@@ -20,7 +20,16 @@
             "es2015.promise",
             "es2017.object",
             "es2019"
-        ]
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@codesuma/baseline": [
+                "./baseline"
+            ],
+            "@codesuma/baseline/*": [
+                "./baseline/*"
+            ]
+        }
     },
     "include": [
         "./**/*"
