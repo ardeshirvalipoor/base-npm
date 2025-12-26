@@ -13,14 +13,19 @@
     border-radius: 50%;
     z-index: 99999;
     transform: translateY(60px) rotateX(90deg);
-    transition: all 0.28s ease;
+    transition: all 0.24s ease-in-out;
     overflow: hidden;
     opacity: 0;
 }
 
-.visible:hover {
+.base:hover {
     opacity: 0.8;
 }
+
+.base:active {
+    transform: scale(0.9);
+}
+
 
 .visible {
     opacity: 0.7;

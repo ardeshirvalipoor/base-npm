@@ -1,5 +1,5 @@
 import { Page, Div } from "@codesuma/baseline"
-import { PageHeader } from '../shared/page-header'
+import { PageHeader } from '../../components/page-header'
 
 export const AboutPage = () => {
     const page = Page()

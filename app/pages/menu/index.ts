@@ -1,5 +1,5 @@
 import { Page } from "@codesuma/baseline"
-import { PageHeader } from '../shared/page-header'
+import { PageHeader } from '../../components/page-header'
 import { MenuItem } from './shared/item'
 
 export const MenuPage = () => {

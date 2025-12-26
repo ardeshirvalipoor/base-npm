@@ -1,4 +1,4 @@
-import { Base, router } from "@codesuma/baseline"
+import { Base, router, waitFor } from "@codesuma/baseline"
 import { Bar } from './bar'
 import styles from './index.module.css'
 
@@ -20,7 +20,8 @@ export const MenuIcon = () => {
         path.split('?')[0] === '/' ? show() : hide()
     })
 
-    function show() {
+    async function show() {
+        await waitFor(200)
         base.removeClass(styles.hidden)
     }
 

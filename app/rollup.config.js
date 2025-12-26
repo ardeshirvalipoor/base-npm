@@ -2,11 +2,12 @@ import typescript from '@rollup/plugin-typescript'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import postcss from 'rollup-plugin-postcss'
+import terser from '@rollup/plugin-terser'
 
 export default {
     input: 'index.ts',
     output: {
-        file: '../www/public/bundle.js',
+        file: '../build/bundle.js',
         format: 'iife',
         sourcemap: true,
     },
@@ -23,6 +24,7 @@ export default {
             extract: 'bundle.css',  // Extract to separate CSS file
             minimize: true,
         }),
+        terser(),
     ],
     treeshake: {
         moduleSideEffects: false,

@@ -12,7 +12,7 @@
     cursor: pointer;
     border-radius: 50%;
     z-index: 99999;
-    transition: all 0.16s ease;
+    transition: all 0.24s ease-in-out;
     overflow: hidden;
     align-items: baseline;
 }
@@ -27,6 +27,7 @@
 
 .hidden {
     opacity: 0;
-    transform: translateY(-60px);
+    transform: translateY(-60px) scaleY(2);
+    ;
     pointer-events: none;
 }

@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@codesuma/baseline": "^1.0.3",
-    "@emotion/css": "^11.13.5"
+    "@emotion/css": "^11.13.5",
+    "@rollup/plugin-terser": "^0.4.4"
   }
 }

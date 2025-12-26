@@ -10,7 +10,7 @@
         "sourceMap": true,
         "strictNullChecks": true,
         "allowJs": true,
-        "outDir": "../www/public",
+        "outDir": "../build",
         "experimentalDecorators": true,
         "lib": [
             "dom",

@@ -1,6 +1,0 @@
-{
-    "scripts": {
-        "deploy": "git subtree push --prefix www https://git.heroku.com/flep.git master",
-        "dev": "cd app && rollup -c -w & cd www && nodemon index && cd api && tsc -w"
-    }
-}

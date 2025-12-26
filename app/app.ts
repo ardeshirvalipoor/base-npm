@@ -2,8 +2,8 @@ import { router, Div } from "@codesuma/baseline"
 import { HomePage } from "./pages/home"
 import { AboutPage } from "./pages/about"
 import { MenuPage } from "./pages/menu"
-import { BackIcon } from "./pages/shared/back-icon"
-import { MenuIcon } from "./pages/shared/menu-icon"
+import { BackIcon } from "./components/back-icon"
+import { MenuIcon } from "./components/menu-icon"
 
 const view = Div()
 const app = Div()
