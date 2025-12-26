@@ -1,4 +1,4 @@
-import { Base, router, waitFor, withRipple } from "../../baseline/index"
+import { Base, router, waitFor } from "@codesuma/baseline"
 import styles from './index.module.css'
 
 export const BackIcon = () => {

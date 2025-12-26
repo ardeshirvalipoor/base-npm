@@ -1,4 +1,4 @@
-import { Div, SVG } from "../../baseline/index";
+import { SVG } from "@codesuma/baseline";
 
 export const Loading = (color = '#FF156D88', width = 100) => {
     // Define the opacity levels and their corresponding delays

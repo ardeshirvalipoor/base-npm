@@ -1,4 +1,4 @@
-import { Div, router, withRipple } from "../../../../../baseline/index"
+import { Div, router, withRipple } from "@codesuma/baseline"
 import styles from "./index.module.css"
 
 export const MenuItem = (title: string, target: string) => {

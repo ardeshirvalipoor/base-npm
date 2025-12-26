@@ -1,4 +1,4 @@
-import { Div } from "../../base/components/native/div"
+import { Div } from "@codesuma/baseline"
 import styles from './index.module.css'
 
 export const Card = () => {

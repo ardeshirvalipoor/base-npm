@@ -1,4 +1,4 @@
-import { Base, Div, router } from "../../baseline/index"
+import { Div, router } from "@codesuma/baseline"
 
 export const PageHeader = (title = '') => {
     const base = Div(title)

@@ -1,4 +1,4 @@
-import { Div, H3 } from "../../baseline/index"
+import { Div } from "@codesuma/baseline"
 
 export const Heading = (text: string, color = 'gray') => {
     const base = Div(text)

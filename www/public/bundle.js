@@ -18,17 +18,6 @@
     /* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
 
-    var __assign = function() {
-        __assign = Object.assign || function __assign(t) {
-            for (var s, i = 1, n = arguments.length; i < n; i++) {
-                s = arguments[i];
-                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-            return t;
-        };
-        return __assign.apply(this, arguments);
-    };
-
     function __awaiter(thisArg, _arguments, P, generator) {
         function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
         return new (P || (P = Promise))(function (resolve, reject) {
@@ -77,23 +66,6 @@
             }
         };
         throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    }
-
-    function __read(o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
     }
 
     typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
@@ -409,8 +381,6 @@
             }
         };
     }
-    // Global emitter for framework internals (mounter, theme, db-ready)
-    var emitter$1 = createEmitter();
 
     function Base(name) {
         if (name === void 0) { name = 'div'; }
@@ -437,7 +407,7 @@
         return new Promise(function (resolve) { return setTimeout(resolve, time, true); });
     };
 
-    var styles$5 = {"page":"page-module_page__jw-YJ","enterUp":"page-module_enterUp__-0uL0","enterDown":"page-module_enterDown__ENEUz","exitUp":"page-module_exitUp__Qvpyx","exitDown":"page-module_exitDown__FYwC8","hiddenBelow":"page-module_hiddenBelow__OeVmA","hiddenAbove":"page-module_hiddenAbove__EdqEi"};
+    var styles$5 = {"page":"page-module_page__8pbdU","enterUp":"page-module_enterUp__yMzMC","enterDown":"page-module_enterDown__708Dg","exitUp":"page-module_exitUp__eVhVn","exitDown":"page-module_exitDown__-ZUtI","hiddenBelow":"page-module_hiddenBelow__In1lk","hiddenAbove":"page-module_hiddenAbove__skde8"};
 
     // Page component with directional enter/exit transitions
     var TRANSITION_DURATION = 160;
@@ -633,7 +603,7 @@
         });
     }); };
     // Initialize router
-    var init$1 = function () {
+    var init = function () {
         if (initialized)
             return;
         initialized = true;
@@ -652,7 +622,7 @@
     var routes = function (config, view) {
         routeConfigs = config;
         viewContainer = view;
-        init$1();
+        init();
     };
     // Manually destroy a cached page
     var destroyPage = function (path) {
@@ -664,7 +634,7 @@
     };
     var router = {
         routes: routes,
-        init: init$1,
+        init: init,
         goto: function (path, data) { return navigate(path, data); },
         back: function () { return history.back(); },
         forward: function () { return history.forward(); },
@@ -676,241 +646,6 @@
         off: emitter.off.bind(emitter),
         once: emitter.once.bind(emitter),
     };
-
-    function save() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        if (args.length > 1) {
-            var _a = __read(args, 2), key = _a[0], value_1 = _a[1];
-            if (typeof value_1 === 'object')
-                value_1 = JSON.stringify(value_1);
-            localStorage.setItem(key, value_1);
-            return;
-        }
-        var _b = __read(args, 1), value = _b[0];
-        if (typeof value === 'object')
-            value = JSON.stringify(value);
-        return {
-            as: function (key) {
-                localStorage.setItem(key, value);
-            }
-        };
-    }
-    function get(key) {
-        var raw = String(localStorage.getItem(key) || '');
-        try {
-            return JSON.parse(raw);
-        }
-        catch (err) {
-            return raw;
-        }
-    }
-    function remove(key) {
-        localStorage.removeItem(key);
-    }
-    function clear() {
-        localStorage.clear();
-    }
-    var ldb = {
-        get: get,
-        set: save,
-        save: save,
-        remove: remove,
-        clear: clear
-    };
-
-    // Simplified IndexedDB wrapper
-    var openDB = function (name, version) {
-        return new Promise(function (resolve, reject) {
-            var req = indexedDB.open(name, version);
-            req.onsuccess = function () { return resolve(req.result); };
-            req.onerror = function () { return reject(req.error); };
-        });
-    };
-    var withStore = function (dbName, storeName, mode, fn) { return __awaiter(void 0, void 0, void 0, function () {
-        var db;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, openDB(dbName)];
-                case 1:
-                    db = _a.sent();
-                    return [2 /*return*/, new Promise(function (resolve, reject) {
-                            if (!db.objectStoreNames.contains(storeName)) {
-                                db.close();
-                                return resolve([]);
-                            }
-                            var tx = db.transaction(storeName, mode);
-                            var store = tx.objectStore(storeName);
-                            var req = fn(store, db);
-                            tx.oncomplete = function () {
-                                db.close();
-                                resolve(req ? req.result : undefined);
-                            };
-                            tx.onerror = function () {
-                                db.close();
-                                reject(tx.error);
-                            };
-                        })];
-            }
-        });
-    }); };
-    var idb = (function (dbName) { return ({
-        // Get database info
-        info: function () {
-            return __awaiter(this, void 0, void 0, function () {
-                var db, result;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, openDB(dbName)];
-                        case 1:
-                            db = _a.sent();
-                            result = { version: db.version, objectStoreNames: db.objectStoreNames };
-                            db.close();
-                            return [2 /*return*/, result];
-                    }
-                });
-            });
-        },
-        // Create or upgrade store
-        createStore: function (name, version, options) {
-            if (options === void 0) { options = {}; }
-            return __awaiter(this, void 0, void 0, function () {
-                var opts;
-                return __generator(this, function (_a) {
-                    opts = __assign({ keyPath: 'id', autoIncrement: true, indices: [] }, options);
-                    return [2 /*return*/, new Promise(function (resolve, reject) {
-                            var req = indexedDB.open(dbName, version);
-                            req.onupgradeneeded = function (e) {
-                                var db = e.target.result;
-                                if (!db.objectStoreNames.contains(name)) {
-                                    var store_1 = db.createObjectStore(name, { keyPath: opts.keyPath, autoIncrement: opts.autoIncrement });
-                                    opts.indices.forEach(function (idx) { return store_1.createIndex(idx, idx); });
-                                }
-                            };
-                            req.onsuccess = function () { req.result.close(); resolve(); };
-                            req.onerror = function () { return reject(req.error); };
-                        })];
-                });
-            });
-        },
-        // CRUD operations
-        save: function (store, data) {
-            return __awaiter(this, void 0, void 0, function () {
-                var items;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            items = Array.isArray(data) ? data : [data];
-                            return [4 /*yield*/, withStore(dbName, store, 'readwrite', function (s) {
-                                    items.forEach(function (item) { return s.add(item); });
-                                })];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/, data];
-                    }
-                });
-            });
-        },
-        get: function (store, id) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, withStore(dbName, store, 'readonly', function (s) { return s.get(id); })];
-                });
-            });
-        },
-        all: function (store) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, withStore(dbName, store, 'readonly', function (s) { return s.getAll(); })];
-                });
-            });
-        },
-        update: function (store, data) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, withStore(dbName, store, 'readwrite', function (s) { return s.put(data); })];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/, data];
-                    }
-                });
-            });
-        },
-        delete: function (store, id) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, withStore(dbName, store, 'readwrite', function (s) { return s.delete(id); })];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/];
-                    }
-                });
-            });
-        },
-        clear: function (store) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, withStore(dbName, store, 'readwrite', function (s) { return s.clear(); })];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/];
-                    }
-                });
-            });
-        },
-        count: function (store) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, withStore(dbName, store, 'readonly', function (s) { return s.count(); })];
-                });
-            });
-        },
-        // Query with options
-        find: function (store, options) {
-            if (options === void 0) { options = {}; }
-            return __awaiter(this, void 0, void 0, function () {
-                var index, value, _a, limit, _b, reverse, db;
-                return __generator(this, function (_c) {
-                    switch (_c.label) {
-                        case 0:
-                            index = options.index, value = options.value, _a = options.limit, limit = _a === void 0 ? 1000 : _a, _b = options.reverse, reverse = _b === void 0 ? false : _b;
-                            return [4 /*yield*/, openDB(dbName)];
-                        case 1:
-                            db = _c.sent();
-                            return [2 /*return*/, new Promise(function (resolve, reject) {
-                                    if (!db.objectStoreNames.contains(store)) {
-                                        db.close();
-                                        return resolve([]);
-                                    }
-                                    var tx = db.transaction(store, 'readonly');
-                                    var s = tx.objectStore(store);
-                                    var source = index ? s.index(index) : s;
-                                    var range = value !== undefined ? IDBKeyRange.only(value) : undefined;
-                                    var req = source.openCursor(range, reverse ? 'prev' : 'next');
-                                    var results = [];
-                                    req.onsuccess = function () {
-                                        var cursor = req.result;
-                                        if (cursor && results.length < limit) {
-                                            results.push(cursor.value);
-                                            cursor.continue();
-                                        }
-                                        else {
-                                            db.close();
-                                            resolve(results);
-                                        }
-                                    };
-                                    tx.onerror = function () { db.close(); reject(tx.error); };
-                                })];
-                    }
-                });
-            });
-        }
-    }); });
 
     // Ripple effect - Material Design style touch feedback
     var RIPPLE_CSS = "\n[data-ripple] .ripple {\n    position: absolute;\n    border-radius: 50%;\n    background: currentColor;\n    opacity: 0.1;\n    transform: scale(0);\n    pointer-events: none;\n}\n[data-ripple] .ripple.animate {\n    animation: ripple 1s ease-out;\n}\n@keyframes ripple {\n    to { transform: scale(4); opacity: 0; }\n}\n";
@@ -1112,109 +847,10 @@
         '/about': AboutPage,
     }, view);
 
-    var db = idb('db');
-    var init = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, version, objectStoreNames;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    if (!ldb.get('init'))
-                        ldb.save('init', true);
-                    return [4 /*yield*/, db.info()];
-                case 1:
-                    _a = _b.sent(), version = _a.version, objectStoreNames = _a.objectStoreNames;
-                    if (!!objectStoreNames.contains('clients')) return [3 /*break*/, 3];
-                    return [4 /*yield*/, db.createStore('clients', version + 1, {
-                            keyPath: 'temp_id', indices: [
-                                'id',
-                                'user_id',
-                                'created_at',
-                                'updated_at',
-                                'name',
-                                'contact',
-                                'synced',
-                                'deleted',
-                                'notifications_enabled'
-                            ]
-                        })];
-                case 2:
-                    _b.sent();
-                    _b.label = 3;
-                case 3:
-                    if (!!objectStoreNames.contains('appointments')) return [3 /*break*/, 5];
-                    return [4 /*yield*/, db.createStore('appointments', version + 2, {
-                            keyPath: 'temp_id', indices: [
-                                'id',
-                                'user_id',
-                                'created_at',
-                                'updated_at',
-                                'date',
-                                'client_id',
-                                'synced',
-                                'deleted',
-                            ]
-                        })];
-                case 4:
-                    _b.sent();
-                    _b.label = 5;
-                case 5:
-                    if (!!objectStoreNames.contains('businesses')) return [3 /*break*/, 7];
-                    return [4 /*yield*/, db.createStore('businesses', version + 3, {
-                            keyPath: 'temp_id', indices: [
-                                'id',
-                                'user_id',
-                                'name',
-                                'created_at',
-                                'updated_at',
-                                'synced',
-                                'deleted',
-                            ]
-                        })];
-                case 6:
-                    _b.sent();
-                    _b.label = 7;
-                case 7:
-                    if (!!objectStoreNames.contains('transactions')) return [3 /*break*/, 9];
-                    return [4 /*yield*/, db.createStore('transactions', version + 4, {
-                            keyPath: 'temp_id',
-                            indices: [
-                                'id',
-                                'user_id',
-                                'business_id',
-                                'created_at',
-                                'updated_at',
-                                'type',
-                                'category',
-                                'amount',
-                                'date',
-                                'client_id',
-                                'reference_id',
-                                'synced',
-                                'deleted',
-                            ]
-                        })];
-                case 8:
-                    _b.sent();
-                    _b.label = 9;
-                case 9:
-                    emitter$1.emit('db-ready');
-                    return [2 /*return*/, true];
-            }
-        });
-    }); };
-    var db$1 = __assign(__assign({}, db), { init: init });
-
     (function () { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, db$1.init()];
-                case 1:
-                    _a.sent();
-                    document.body.appendChild(app.el);
-                    if (!ldb.get('app-id'))
-                        ldb.set('app-id', crypto.randomUUID());
-                    return [2 /*return*/];
-            }
+            document.body.appendChild(app.el);
+            return [2 /*return*/];
         });
     }); })();
 

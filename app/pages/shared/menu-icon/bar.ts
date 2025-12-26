@@ -1,4 +1,4 @@
-import { Base } from "../../baseline/index"
+import { Base } from "@codesuma/baseline"
 import styles from './bar.module.css'
 
 export const Bar = (height: number) => {

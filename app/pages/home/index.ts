@@ -1,4 +1,4 @@
-import { Page, Div, H1, P } from "../../baseline/index"
+import { Page } from "@codesuma/baseline"
 import { Card } from '../../components/card'
 
 export const HomePage = () => {
