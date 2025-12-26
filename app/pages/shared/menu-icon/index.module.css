@@ -1,0 +1,32 @@
+.base {
+    position: absolute;
+    left: 0;
+    top: env(safe-area-inset-top);
+    width: 60px;
+    height: 60px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 99999;
+    transition: all 0.16s ease;
+    overflow: hidden;
+    align-items: baseline;
+}
+
+.base:hover {
+    opacity: 0.8;
+}
+
+.base:active {
+    transform: scale(0.9);
+}
+
+.hidden {
+    opacity: 0;
+    transform: translateY(-60px);
+    pointer-events: none;
+}

@@ -1,0 +1,6 @@
+export enum ReminderStatus {
+    INITIAL = 'INITIAL',
+    SENT = 'SENT',
+    DEFINED = 'DEFINED',
+    WAITING_FOR_USER_TO_JOIN_THE_BOT = 'WAITING_FOR_USER_TO_JOIN_THE_BOT',
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@codesuma/baseline",
+  "version": "1.0.4",
+  "description": "A minimal, imperative UI framework for building fast web apps. No virtual DOM, no magic, no dependencies.",
+  "main": "index.ts",
+  "types": "index.ts",
+  "files": [
+    "components/**/*",
+    "helpers/**/*",
+    "lib/**/*",
+    "utils/**/*",
+    "index.ts",
+    "README.md"
+  ],
+  "keywords": [
+    "ui",
+    "framework",
+    "spa",
+    "router",
+    "imperative",
+    "minimal",
+    "typescript"
+  ],
+  "author": "ardeshirvalipoor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ardeshirvalipoor/base-ui.git"
+  },
+  "peerDependencies": {},
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {}
+}

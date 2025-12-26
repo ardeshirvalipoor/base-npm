@@ -1,0 +1,20 @@
+/* Card component styles */
+.base {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin: 100px auto;
+    padding: 50px;
+    text-align: center;
+}
+
+.base:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark mode variant */
+.base.dark {
+    background: #1a1a1a;
+    color: #fff;
+}

@@ -1,0 +1,60 @@
+.page {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    padding-left: 60px;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: #fff;
+    z-index: 100;
+    will-change: opacity, transform;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    transform: translateY(60px);
+    pointer-events: none;
+    opacity: 0;
+}
+
+/* Forward enter: from bottom */
+.page.enterUp {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Back enter: from top */
+.page.enterDown {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Forward exit: to top (hide above screen) */
+.page.exitUp {
+    opacity: 0;
+    transform: translateY(-60px);
+    pointer-events: none;
+}
+
+/* Back exit: to bottom (hide below screen) */
+.page.exitDown {
+    opacity: 0;
+    transform: translateY(60px);
+    pointer-events: none;
+}
+
+/* Initial hidden states for stacking */
+.page.hiddenBelow {
+    transform: translateY(60px);
+    opacity: 0;
+}
+
+.page.hiddenAbove {
+    transform: translateY(-60px);
+    opacity: 0;
+}

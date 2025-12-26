@@ -1,0 +1,5 @@
+.bar {
+    width: 100%;
+    background-color: #000;
+    transition: all 0.2s ease;
+}

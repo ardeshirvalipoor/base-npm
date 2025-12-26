@@ -1,0 +1,51 @@
+.base {
+    position: absolute;
+    left: 0;
+    top: env(safe-area-inset-top);
+    width: 60px;
+    height: 60px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 99999;
+    transform: translateY(60px) rotateX(90deg);
+    transition: all 0.28s ease;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.visible:hover {
+    opacity: 0.8;
+}
+
+.visible {
+    opacity: 0.7;
+    transform: translateY(0) rotateX(0deg);
+}
+
+.hidden {
+    opacity: 0;
+    transform: translateY(60px) rotateX(90deg);
+    pointer-events: none;
+}
+
+.bar {
+    width: 15px;
+    height: 3px;
+    background-color: #000;
+    position: absolute;
+}
+
+.barTop {
+    bottom: 33px;
+    transform: rotateZ(-45deg);
+}
+
+.barBottom {
+    top: 33px;
+    transform: rotateZ(45deg);
+}
