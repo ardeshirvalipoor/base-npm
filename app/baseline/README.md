@@ -20,7 +20,7 @@ npm install @codesuma/baseline
 ## Quick Start
 
 ```typescript
-import { Div, Button, router } from '@nichobase/base'
+import { Div, Button, router } from '@codesuma/baseline'
 
 const App = () => {
     const app = Div()
@@ -51,7 +51,7 @@ document.body.appendChild(App().el)
 Every component is created with the `Base()` factory:
 
 ```typescript
-import { Base } from 'base/components/base'
+import { Base } from '@codesuma/baseline'
 
 const card = Base('div')   // Creates a <div>
 card.el                     // The actual DOM element
@@ -61,7 +61,7 @@ card.id                     // Unique identifier
 Or use pre-made native components:
 
 ```typescript
-import { Div, Button, Input, Span, A, Img } from 'base/components/native'
+import { Div, Button, Input, Span, A, Img } from '@codesuma/baseline'
 
 const container = Div('Hello')
 const btn = Button('Click')
@@ -137,7 +137,7 @@ Use `.module.css` files for scoped, maintainable styles:
 
 **card/index.ts**
 ```typescript
-import { Div } from '../../base/components/native/div'
+import { Div } from '@codesuma/baseline'
 import styles from './index.module.css'
 
 export const Card = () => {
@@ -244,8 +244,7 @@ Base includes a full-featured SPA router with page lifecycle management. Pages s
 ### Basic Setup
 
 ```typescript
-import { Div } from 'base/components/native/div'
-import router from 'base/lib/router'
+import { Div, router } from '@codesuma/baseline'
 import { HomePage } from './pages/home'
 import { AboutPage } from './pages/about'
 import { UserPage } from './pages/user'
@@ -281,8 +280,9 @@ router.routes({
 ### How It Works
 
 - All pages are created once and stay in DOM
-- Navigation toggles visibility via CSS classes (`.enter` / `.exit`)
+- Navigation toggles visibility via CSS classes
 - Smooth transitions because both pages exist during animation
+- **Smart Directional Animations**: Automatically slides UP for forward navigation and DOWN for back navigation
 - State preserved (scroll position, form inputs)
 
 ### Page Component
@@ -290,29 +290,29 @@ router.routes({
 Base includes a `Page` component with built-in CSS transitions for smooth page navigation:
 
 ```typescript
-import { Page } from 'base/components/advanced/page'
-import { IRouteEvent } from 'base/lib/router'
+import { Page, IRouteEvent } from '@codesuma/baseline'
 
 export const AboutPage = () => {
-    const page = Page()  // Comes with enter/exit animations
+    const page = Page()  // Includes directional enter/exit animations
     
     // Add your content
     page.append(header, body)
     
-    // Uses default animations - slide up on enter, slide up on exit
+    // Default animations:
+    // Forward: Enter Up / Exit Up
+    // Back:    Enter Down / Exit Down
     return page
 }
 ```
 
 **Default animations:**
-- Enter: Slides up from bottom, fades in
-- Exit: Slides up, fades out
+- Forward: Slides up from bottom
+- Back: Slides down to bottom
 
 ### Customizing Page Transitions
 
 ```typescript
-import { Page } from 'base/components/advanced/page'
-import { IRouteEvent } from 'base/lib/router'
+import { Page, IRouteEvent } from '@codesuma/baseline'
 
 export const HomePage = () => {
     const page = Page()
@@ -320,20 +320,8 @@ export const HomePage = () => {
     // Override default enter - show instantly
     page.off('enter')
     page.on('enter', async ({ from }: IRouteEvent) => {
-        page.showInstant()
+        page.showInstant() // Assuming you implemented this helper or use style overrides
         // Load data...
-    })
-    
-    return page
-}
-
-export const AboutPage = () => {
-    const page = Page()
-    
-    // Custom exit - slide DOWN instead of up (for back navigation)
-    page.off('exit')
-    page.on('exit', async () => {
-        await page.exitDown()
     })
     
     return page
@@ -365,7 +353,7 @@ page.on('exit', async () => {
 ### Navigation
 
 ```typescript
-import router from 'base/lib/router'
+import { router } from '@codesuma/baseline'
 
 // Navigate to path
 router.goto('/about')
@@ -432,9 +420,8 @@ router.on('change', ({ path, params, query, from, data }) => {
 
 ```typescript
 // app.ts
-import { Div } from './base/components/native/div'
-import router from './base/lib/router'
-import { FIXED, EASE } from './base/helpers/style'
+import { Div, router } from '@codesuma/baseline'
+import { FIXED, EASE } from '@codesuma/baseline/helpers/style' // specialized helpers might still need specific paths if not all exported, but index.ts didn't show helpers/style exported. Let's check index.ts again.
 import { HomePage } from './pages/home'
 import { AboutPage } from './pages/about'
 import { UserPage } from './pages/user'
@@ -468,8 +455,7 @@ export default app
 
 ```typescript
 // pages/user/index.ts
-import { Div } from '../../base/components/native/div'
-import http from '../../base/lib/http'
+import { Div, http } from '@codesuma/baseline'
 
 export const UserPage = () => {
     const page = Div()
@@ -493,7 +479,7 @@ export const UserPage = () => {
 Built-in fetch wrapper with request deduplication:
 
 ```typescript
-import http from 'base/lib/http'
+import { http } from '@codesuma/baseline'
 
 // GET (automatically deduplicated - same URL = same request)
 const { status, data } = await http.get('/api/users')
@@ -520,7 +506,7 @@ await http.upload('/api/upload', file, {
 ### localStorage
 
 ```typescript
-import ldb from 'base/lib/ldb'
+import { ldb } from '@codesuma/baseline'
 
 ldb.set('user', { name: 'John' })  // Auto JSON stringify
 ldb.get('user')                     // Auto JSON parse
@@ -531,9 +517,9 @@ ldb.clear()
 ### IndexedDB
 
 ```typescript
-import createDB from 'base/lib/idb'
+import { idb } from '@codesuma/baseline'
 
-const db = createDB('my-app')
+const db = idb('my-app')
 
 // Create store (run once on app init)
 await db.createStore('users', 1, { keyPath: 'id', indices: ['email'] })
@@ -557,7 +543,7 @@ const results = await db.find('users', {
 ### Global State
 
 ```typescript
-import state from 'base/lib/state'
+import { state } from '@codesuma/baseline'
 
 // Simple get/set
 state.set('user', { name: 'John', id: 123 })
@@ -579,7 +565,7 @@ state.on('change', ({ key, value }) => {
 ### Style Helpers
 
 ```typescript
-import { ABSOLUTE, FIXED, FLEX, CENTER, HIDE, SHOW, EASE, WH, X, Y, SCALE, ROTATE } from 'base/helpers/style'
+import { ABSOLUTE, FIXED, EASE, WH, Y, CENTER } from '@codesuma/baseline/helpers/style'
 
 card.style({ ...ABSOLUTE })           // position: absolute; inset: 0;
 card.style({ ...CENTER })             // display: flex; align-items: center; justify-content: center;
@@ -591,8 +577,7 @@ card.style({ ...Y(-10) })             // transform: translateY(-10px);
 ### Ripple Effect
 
 ```typescript
-import { withRipple } from 'base/utils/ripple'
-import { Button } from 'base/components/native/button'
+import { withRipple, Button } from '@codesuma/baseline'
 
 const btn = withRipple(Button('Click me'))
 // Now has Material Design ripple effect on click/touch
@@ -601,7 +586,7 @@ const btn = withRipple(Button('Click me'))
 ### Device Detection
 
 ```typescript
-import { isMobile, isTouch, isIOS, isAndroid } from 'base/helpers/device'
+import { isMobile, isTouch } from '@codesuma/baseline/helpers/device'
 
 if (isMobile()) { /* mobile layout */ }
 if (isTouch()) { /* touch interactions */ }
@@ -610,7 +595,7 @@ if (isTouch()) { /* touch interactions */ }
 ### Validation
 
 ```typescript
-import { isEmail, isUrl, isPhone, isStrongPassword } from 'base/helpers/regex'
+import { isEmail } from '@codesuma/baseline/helpers/regex'
 
 if (isEmail(input.value())) { /* valid */ }
 ```

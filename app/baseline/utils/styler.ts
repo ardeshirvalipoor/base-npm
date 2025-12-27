@@ -1,11 +1,11 @@
 import { IBaseComponent, IBaseSVGComponent } from '../components/base'
 
 type Component = IBaseComponent<any> | IBaseSVGComponent<any>
-type StyleObj = Partial<CSSStyleDeclaration> & Record<string, any>
+export type CS = Partial<CSSStyleDeclaration> & Record<string, any>
 
 export function createStyler(base: Component): IStyler {
     return {
-        style(s: StyleObj, delay?: number) {
+        style(s: CS, delay?: number) {
             const apply = () => {
                 const keys = Object.keys(s)
                 for (let i = 0; i < keys.length; i++) {
@@ -47,10 +47,11 @@ export function injectCSS(id: string, css: string) {
 }
 
 export interface IStyler {
-    style(s: StyleObj, delay?: number): Component
+    style(s: CS, delay?: number): Component
     addClass(...classes: string[]): Component
     removeClass(...classes: string[]): Component
     toggleClass(cls: string, force?: boolean): Component
 }
+
 
 export default createStyler

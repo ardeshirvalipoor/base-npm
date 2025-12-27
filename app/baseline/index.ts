@@ -30,7 +30,7 @@ export { default as state } from './lib/state'
 
 // Utilities
 export { createEmitter, emitter, IEmitter } from './utils/emitter'
-export { createStyler, injectCSS, IStyler } from './utils/styler'
+export { createStyler, injectCSS, IStyler, CS } from './utils/styler'
 export { waitFor } from './utils/wait'
 export { withRipple } from './utils/ripple'
 export { nextId, shortUUID, uuidv4 } from './utils/id'
