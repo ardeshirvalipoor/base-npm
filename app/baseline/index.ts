@@ -25,7 +25,7 @@ export { Page } from './components/advanced/page'
 export { default as router, IRouteEvent } from './lib/router'
 export { default as http } from './lib/http'
 export { default as ldb } from './lib/ldb'
-export { default as createDB } from './lib/idb'
+export { default as idb } from './lib/idb'
 export { default as state } from './lib/state'
 
 // Utilities
