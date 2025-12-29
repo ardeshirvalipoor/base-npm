@@ -1,29 +1,156 @@
-import { Base } from '../base'
+import { Base, IBaseComponent } from '../base'
 
-export const Input = (placeholder = '', type = 'text', options: { value?: string; accept?: string } = {}) => {
-    const base = type === 'textarea' ? Base('textarea') : Base('input')
+export type InputType = 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url' | 'checkbox' | 'radio' | 'date' | 'time' | 'datetime-local' | 'month' | 'week' | 'color' | 'file' | 'range' | 'hidden' | 'textarea'
 
-    base.el.setAttribute('type', type)
-    base.el.setAttribute('placeholder', placeholder)
-    if (options.accept) base.el.setAttribute('accept', options.accept)
-    if (options.value) base.el.value = options.value
+export interface InputOptions {
+    value?: string | number
+    accept?: string
+    checked?: boolean
+    name?: string
+    id?: string
+    min?: string | number
+    max?: string | number
+    step?: string | number
+    autocomplete?: string
+    autofocus?: boolean
+    disabled?: boolean
+    readonly?: boolean
+    required?: boolean
+    multiple?: boolean
+    pattern?: string
+}
 
-    // Events
-    base.el.onblur = () => base.emit('blur')
-    base.el.onfocus = () => base.emit('focus')
-    base.el.oninput = () => base.emit('input', base.el.value)
-    base.el.onkeydown = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') base.emit('enter', base.el.value)
+export interface IInputComponent extends IBaseComponent<'input'> {
+    value(): string
+    setValue(v: string): void
+    clear(): void
+    select(): void
+    focus(): void
+    blur(): void
+}
+
+export interface ITextAreaComponent extends IBaseComponent<'textarea'> {
+    value(): string
+    setValue(v: string): void
+    clear(): void
+    select(): void
+    focus(): void
+    blur(): void
+}
+
+export interface ICheckboxComponent extends IBaseComponent<any> {
+    isChecked(): boolean
+    setChecked(v: boolean): void
+    toggle(): void
+    focus(): void
+    blur(): void
+}
+
+export function Input(placeholder: string, type: 'checkbox' | 'radio', options?: InputOptions): ICheckboxComponent
+export function Input(placeholder: string, type: 'textarea', options?: InputOptions): ITextAreaComponent
+export function Input(placeholder?: string, type?: InputType, options?: InputOptions): IInputComponent
+export function Input(placeholder = '', type: InputType = 'text', options: InputOptions = {}) {
+    const isCheckOrRadio = type === 'checkbox' || type === 'radio'
+    const hasLabel = isCheckOrRadio && placeholder.length > 0
+
+    // If it's a checkbox/radio with a label, the main component is a Label wrapper
+    // Otherwise, it's the Input element itself
+    const base = hasLabel
+        ? Base('label')
+        : (type === 'textarea' ? Base('textarea') : Base('input'))
+
+    // The actual input element to interact with
+    let inputEl: HTMLInputElement | HTMLTextAreaElement
+
+    if (hasLabel) {
+        // Create internal input for the wrapper
+        const inputComp = Base('input')
+        inputEl = inputComp.el as HTMLInputElement
+
+        // Setup wrapper styles
+        base.style({ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' })
+
+        // Assemble: Input + Text
+        const text = Base('span')
+        text.el.textContent = placeholder
+        base.append(inputComp, text)
+    } else {
+        inputEl = base.el as HTMLInputElement | HTMLTextAreaElement
+    }
+
+    // --- Common Setup Logic (applied to inputEl) ---
+
+    if (type !== 'textarea') {
+        inputEl.setAttribute('type', type)
+        // Fix for global appearance: none which hides checkboxes
+        if (isCheckOrRadio) {
+            inputEl.style.setProperty('-webkit-appearance', 'auto')
+            inputEl.style.setProperty('appearance', 'auto')
+        }
+    }
+
+    // For non-checkboxes, placeholder goes on input. For checkboxes, it's already used as label text.
+    if (!isCheckOrRadio && placeholder) {
+        inputEl.setAttribute('placeholder', placeholder)
+    }
+
+    // Attributes
+    if (options.value !== undefined) inputEl.value = String(options.value)
+    if (options.accept) inputEl.setAttribute('accept', options.accept)
+    if (options.name) inputEl.setAttribute('name', options.name)
+    // ID goes on the input element normally, but if wrapped, user might expect ID on wrapper?
+    // Standard practice: ID on input, wrapper usually wraps it. 
+    if (options.id) inputEl.setAttribute('id', options.id)
+
+    if (options.min !== undefined) inputEl.setAttribute('min', String(options.min))
+    if (options.max !== undefined) inputEl.setAttribute('max', String(options.max))
+    if (options.step !== undefined) inputEl.setAttribute('step', String(options.step))
+    if (options.autocomplete) inputEl.setAttribute('autocomplete', options.autocomplete)
+    if (options.pattern) inputEl.setAttribute('pattern', options.pattern)
+    if (options.multiple) inputEl.setAttribute('multiple', '')
+
+    // Boolean properties
+    if (options.checked !== undefined && 'checked' in inputEl) (inputEl as HTMLInputElement).checked = options.checked
+    if (options.disabled) inputEl.disabled = true
+    if (options.readonly) inputEl.readOnly = true
+    if (options.required) inputEl.required = true
+    if (options.autofocus) setTimeout(() => inputEl.focus(), 0)
+
+    // Events - Proxy from inputEl to base emitter
+    inputEl.onblur = () => base.emit('blur')
+    inputEl.onfocus = () => base.emit('focus')
+
+    const emitValue = () => {
+        const val = isCheckOrRadio && 'checked' in inputEl
+            ? (inputEl as HTMLInputElement).checked
+            : inputEl.value
+        return val
+    }
+
+    inputEl.oninput = () => base.emit('input', emitValue())
+    inputEl.onchange = () => base.emit('change', emitValue())
+
+    inputEl.onkeydown = (e: KeyboardEvent) => {
+        if (e.key === 'Enter') base.emit('enter', inputEl.value)
         if (e.key === 'Escape') base.emit('escape')
-        base.emit('keydown', { key: e.key, value: base.el.value })
+        base.emit('keydown', { key: e.key, value: inputEl.value })
     }
 
     return Object.assign(base, {
-        focus() { base.el.focus() },
-        blur() { base.el.blur() },
-        select() { base.el.select() },
-        value() { return base.el.value },
-        setValue(v: string) { base.el.value = v },
-        clear() { base.el.value = '' }
-    })
+        focus() { inputEl.focus() },
+        blur() { inputEl.blur() },
+        select() { inputEl.select() },
+        value() { return inputEl.value },
+        setValue(v: string) { inputEl.value = v },
+        clear() { inputEl.value = '' },
+        // Checkbox/Radio specific
+        isChecked() { return 'checked' in inputEl ? (inputEl as HTMLInputElement).checked : false },
+        setChecked(v: boolean) { if ('checked' in inputEl) (inputEl as HTMLInputElement).checked = v },
+        toggle() {
+            if ('checked' in inputEl) {
+                (inputEl as HTMLInputElement).checked = !(inputEl as HTMLInputElement).checked
+                base.emit('change', (inputEl as HTMLInputElement).checked)
+            }
+        }
+    }) as any
 }

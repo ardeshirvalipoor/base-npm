@@ -66,6 +66,16 @@ import { Div, Button, Input, Span, A, Img } from '@codesuma/baseline'
 const container = Div('Hello')
 const btn = Button('Click')
 const input = Input('Enter name...', 'text')
+
+// Support for different input types (First arg is label for check/radio)
+const checkbox = Input('Stay signed in', 'checkbox', { checked: true })
+const number = Input('Age', 'number', { min: 0, max: 100 })
+const date = Input('Date', 'date')
+
+// Checkbox helpers
+checkbox.isChecked() // true
+checkbox.toggle()
+checkbox.on('change', (checked) => console.log(checked))
 ```
 
 ### Events
