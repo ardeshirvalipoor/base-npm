@@ -1,4 +1,4 @@
-# Base
+# Baseline
 
 A minimal, imperative UI framework for building fast web apps. No virtual DOM, no magic, no dependencies.
 
@@ -10,7 +10,7 @@ A minimal, imperative UI framework for building fast web apps. No virtual DOM, n
 npm install @codesuma/baseline
 ```
 
-## Why Base?
+## Why Baseline?
 
 - **Predictable** - What you write is what happens. No hidden lifecycle, no reactivity magic.
 - **Fast** - Direct DOM manipulation. No diffing algorithms.

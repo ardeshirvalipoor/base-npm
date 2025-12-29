@@ -8,7 +8,6 @@
     bottom: 0;
     width: 100%;
     height: 100%;
-    padding-left: 60px;
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     background-color: #fff;
