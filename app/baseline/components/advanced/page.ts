@@ -23,7 +23,13 @@ export const Page = () => {
             base.removeClass(styles.hiddenAbove)
         }
 
+        // Force reflow so browser registers the starting position
+        // This is critical for the first transition to be smooth
+        void base.el.offsetHeight
+
+        // Visual delay before entering
         await waitFor(200)
+
         // Clear all state classes
         base.removeClass(
             styles.exitUp,
