@@ -2,8 +2,10 @@ import { injectCSS } from '../utils/styler'
 
 const RIPPLE_CSS = `
 [data-ripple] {
-    position: relative;
     overflow: hidden;
+}
+:where([data-ripple]) {
+    position: relative;
 }
 [data-ripple] .ripple {
     position: absolute;
