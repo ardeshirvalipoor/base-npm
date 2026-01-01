@@ -117,8 +117,8 @@ export function Input(placeholder = '', type: InputType = 'text', options: Input
     if (options.autofocus) setTimeout(() => inputEl.focus(), 0)
 
     // Events - Proxy from inputEl to base emitter
-    inputEl.onblur = () => base.emit('blur')
-    inputEl.onfocus = () => base.emit('focus')
+    inputEl.onblur = (e) => base.emit('blur', e)
+    inputEl.onfocus = (e) => base.emit('focus', e)
 
     const emitValue = () => {
         const val = isCheckOrRadio && 'checked' in inputEl
@@ -127,13 +127,13 @@ export function Input(placeholder = '', type: InputType = 'text', options: Input
         return val
     }
 
-    inputEl.oninput = () => base.emit('input', emitValue())
-    inputEl.onchange = () => base.emit('change', emitValue())
+    inputEl.oninput = (e) => base.emit('input', { value: emitValue(), event: e })
+    inputEl.onchange = (e) => base.emit('change', { value: emitValue(), event: e })
 
     inputEl.onkeydown = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') base.emit('enter', inputEl.value)
-        if (e.key === 'Escape') base.emit('escape')
-        base.emit('keydown', { key: e.key, value: inputEl.value })
+        if (e.key === 'Enter') base.emit('enter', { value: inputEl.value, event: e })
+        if (e.key === 'Escape') base.emit('escape', e)
+        base.emit('keydown', { key: e.key, value: inputEl.value, event: e })
     }
 
     return Object.assign(base, {
