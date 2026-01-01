@@ -586,11 +586,17 @@ card.style({ ...Y(-10) })             // transform: translateY(-10px);
 
 ### Ripple Effect
 
-```typescript
-import { withRipple, Button } from '@codesuma/baseline'
+Enable the ripple effect globally in your main entry file:
 
-const btn = withRipple(Button('Click me'))
-// Now has Material Design ripple effect on click/touch
+```typescript
+import { initRipple, Button } from '@codesuma/baseline'
+
+// Initialize once
+initRipple()
+
+// Usage
+const btn = Button('Click me')
+btn.attr('data-ripple', '') // Add ripple attribute
 ```
 
 ### Device Detection
