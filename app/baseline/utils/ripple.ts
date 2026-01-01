@@ -1,59 +1,60 @@
-// Ripple effect - Material Design style touch feedback
-
-import { Base, IBaseComponent } from '../components/base'
 import { injectCSS } from '../utils/styler'
 
 const RIPPLE_CSS = `
+[data-ripple] {
+    position: relative;
+    overflow: hidden;
+}
 [data-ripple] .ripple {
     position: absolute;
     border-radius: 50%;
     background: currentColor;
-    opacity: 0.1;
+    opacity: 0.15;
     transform: scale(0);
     pointer-events: none;
-}
-[data-ripple] .ripple.animate {
-    animation: ripple 1s ease-out;
+    animation: ripple 600ms ease-out forwards;
 }
 @keyframes ripple {
     to { transform: scale(4); opacity: 0; }
 }
 `
 
-export const withRipple = <T extends IBaseComponent<any>>(component: T): T => {
+export const initRipple = () => {
     injectCSS('base-ripple', RIPPLE_CSS)
 
-    component.el.setAttribute('data-ripple', '')
+    let touchedRecently = false
 
-    const createRipple = (x: number, y: number) => {
-        const ripple = Base('span')
-        ripple.el.className = 'ripple'
-
-        const rect = component.el.getBoundingClientRect()
+    const createRipple = (el: HTMLElement, x: number, y: number) => {
+        const rect = el.getBoundingClientRect()
         const size = Math.max(rect.width, rect.height) * 2
 
-        ripple.style({
+        const ripple = document.createElement('span')
+        ripple.className = 'ripple'
+        Object.assign(ripple.style, {
             width: size + 'px',
             height: size + 'px',
             left: (x - rect.left - size / 2) + 'px',
             top: (y - rect.top - size / 2) + 'px'
         })
 
-        component.el.appendChild(ripple.el)
-        ripple.el.classList.add('animate')
-
-        setTimeout(() => ripple.el.remove(), 600)
+        el.appendChild(ripple)
+        ripple.addEventListener('animationend', () => ripple.remove())
     }
 
-    component.el.addEventListener('touchstart', (e: TouchEvent) => {
-        createRipple(e.touches[0].clientX, e.touches[0].clientY)
+    document.addEventListener('touchstart', (e) => {
+        const el = (e.target as HTMLElement).closest<HTMLElement>('[data-ripple]')
+        if (el) {
+            touchedRecently = true
+            createRipple(el, e.touches[0].clientX, e.touches[0].clientY)
+            setTimeout(() => touchedRecently = false, 100)
+        }
     }, { passive: true })
 
-    component.el.addEventListener('mousedown', (e: MouseEvent) => {
-        createRipple(e.clientX, e.clientY)
+    document.addEventListener('mousedown', (e) => {
+        if (touchedRecently) return
+        const el = (e.target as HTMLElement).closest<HTMLElement>('[data-ripple]')
+        if (el) {
+            createRipple(el, e.clientX, e.clientY)
+        }
     })
-
-    return component
 }
-
-export default withRipple
