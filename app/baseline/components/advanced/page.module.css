@@ -23,14 +23,14 @@
 .page.enterUp {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto;
+    pointer-events: inherit;
 }
 
 /* Back enter: from top */
 .page.enterDown {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto;
+    pointer-events: inherit;
 }
 
 /* Forward exit: to top (hide above screen) */

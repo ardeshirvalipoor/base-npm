@@ -1,6 +1,6 @@
 {
   "name": "@codesuma/baseline",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "A minimal, imperative UI framework for building fast web apps. No virtual DOM, no magic, no dependencies.",
   "main": "index.ts",
   "types": "index.ts",
