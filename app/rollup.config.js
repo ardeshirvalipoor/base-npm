@@ -24,7 +24,9 @@ export default {
             extract: 'bundle.css',  // Extract to separate CSS file
             minimize: true,
         }),
-        terser(),
+        terser({
+            keep_fnames: true
+        }),
     ],
     treeshake: {
         moduleSideEffects: false,

@@ -17,6 +17,18 @@ npm install @codesuma/baseline
 - **Tiny** - The entire framework is smaller than most framework's "hello world" bundle.
 - **Stable** - No dependencies means no breaking changes from upstream.
 
+## Examples
+
+Baseline comes with built-in examples to help you get started:
+
+```typescript
+import { CounterExample, TodoExample } from '@codesuma/baseline'
+
+// Use them in your app
+document.body.appendChild(CounterExample().el)
+document.body.appendChild(TodoExample().el)
+```
+
 ## Quick Start
 
 ```typescript
