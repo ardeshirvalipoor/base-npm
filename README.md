@@ -57,8 +57,12 @@ npm run start:example       # Serve at localhost:9876
 
 ## Publishing
 
+This project uses [Changesets](https://github.com/changesets/changesets) for versioning and publishing.
+
 ```bash
-npm run publish:lib         # Publish @codesuma/baseline to npm
+npm run changeset           # 1. Create a new changeset (describe your changes)
+npm run version-packages    # 2. Bump versions and update CHANGELOG.md
+npm run release             # 3. Publish to npm
 ```
 
 ---

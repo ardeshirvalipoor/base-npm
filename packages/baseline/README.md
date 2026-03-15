@@ -720,20 +720,19 @@ The example app imports `@codesuma/baseline` like any consumer would, but npm wo
 
 ## Publishing to npm
 
+This project uses [Changesets](https://github.com/changesets/changesets) across the monorepo for automated versioning and publishing.
+
 ```bash
-# Navigate to the library package
-cd packages/baseline
+# From the root directory:
 
-# Login to npm (first time only)
-npm login
+# 1. Document your changes
+npm run changeset
 
-# Bump version
-npm version patch    # 1.0.18 → 1.0.19  (bug fixes)
-npm version minor    # 1.0.18 → 1.1.0   (new features)
-npm version major    # 1.0.18 → 2.0.0   (breaking changes)
+# 2. Bump version and generate CHANGELOG.md
+npm run version-packages
 
-# Publish
-npm publish --access public
+# 3. Publish to npm
+npm run release
 ```
 
 Only the files listed in `package.json` → `files` are published:
