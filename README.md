@@ -47,8 +47,10 @@ document.body.appendChild(App().el)
 
 ## Development
 
+**Important**: Because this uses npm workspaces, you **must** run `npm install` from the root directory first. Do not run it inside the examples folder.
+
 ```bash
-npm install                 # Install all workspaces
+npm install                 # Install dependencies for ALL workspaces (run this at the root!)
 npm run build:example       # Build example app
 npm run start:example       # Serve at localhost:9876
 ```
