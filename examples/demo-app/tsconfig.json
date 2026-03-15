@@ -10,7 +10,7 @@
         "sourceMap": true,
         "strictNullChecks": true,
         "allowJs": true,
-        "outDir": "../build",
+        "outDir": "./build",
         "experimentalDecorators": true,
         "lib": [
             "dom",
@@ -24,15 +24,16 @@
         "baseUrl": ".",
         "paths": {
             "@codesuma/baseline": [
-                "./baseline"
+                "../../packages/baseline"
             ],
             "@codesuma/baseline/*": [
-                "./baseline/*"
+                "../../packages/baseline/*"
             ]
         }
     },
     "include": [
-        "./**/*"
+        "./**/*",
+        "../../packages/baseline/**/*"
     ],
     "exclude": [
         "node_modules"

@@ -1,4 +1,4 @@
-import { createEmitter } from "../baseline/utils/emitter";
+import { createEmitter } from "@codesuma/baseline";
 import { AppEventMap } from "../interfaces/app-events";
 
 export const emitter = createEmitter<AppEventMap>();

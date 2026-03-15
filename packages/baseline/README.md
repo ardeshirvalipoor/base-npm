@@ -548,18 +548,28 @@ await db.createStore('users', 1, { keyPath: 'id', indices: ['email'] })
 
 // CRUD
 await db.save('users', { id: '1', name: 'John', email: 'john@example.com' })
+await db.save('users', [item1, item2, item3])  // Batch save
 const user = await db.get('users', '1')
 const allUsers = await db.all('users')
-await db.update('users', { id: '1', name: 'Jane' })
 await db.delete('users', '1')
+await db.clear('users')
+await db.count('users')
 
-// Query
+// Query with options
 const results = await db.find('users', { 
     index: 'email', 
-    value: 'john@example.com',
+    value: 'john@example.com',  // Exact match
     limit: 10,
     reverse: true
 })
+
+// Range queries
+await db.find('products', { index: 'price', gt: 10, lt: 100 })
+await db.find('products', { index: 'price', between: [10, 100] })
+await db.find('products', { index: 'price', gte: 50 })
+
+// Close connection when done (auto-closes after 2s idle)
+db.close()
 ```
 
 ### Global State
@@ -630,24 +640,111 @@ if (isEmail(input.value())) { /* valid */ }
 
 ## Project Structure
 
+This repository uses a mono-repo layout with npm workspaces:
+
+```
+baseline/
+├── packages/
+│   └── baseline/              # The npm package (@codesuma/baseline)
+│       ├── components/
+│       │   ├── base.ts         # Core factory
+│       │   ├── native/         # Div, Button, Input, etc.
+│       │   └── advanced/       # Page (with transitions)
+│       ├── lib/                # Router, HTTP, State, Storage
+│       ├── utils/              # Emitter, Appender, Styler
+│       ├── helpers/            # Date, Device, Format, Regex
+│       ├── index.ts            # Public API
+│       ├── package.json
+│       └── README.md
+├── examples/
+│   └── demo-app/              # Example app (not published)
+│       ├── components/
+│       ├── pages/
+│       ├── services/
+│       ├── app.ts
+│       ├── index.ts
+│       ├── build/              # Example app build output
+│       ├── rollup.config.js
+│       └── tsconfig.json
+├── package.json               # Root workspace config
+└── .gitignore
+```
+
+For your own app, install the package and follow this structure:
+
 ```
 my-app/
-├── base/                 # The framework (copy or npm install)
 ├── components/           # Your reusable components
 │   └── card/
-│   └── index.module.css  # CSS module
-│   └── index.ts          # Component
+│       ├── index.module.css
+│       └── index.ts
 ├── pages/                # Page components
 │   ├── home/
 │   │   └── index.ts
 │   └── about/
 │       └── index.ts
 ├── services/             # API, state management
-├── styles/               # CSS files
 ├── app.ts                # App setup with router
 ├── index.ts              # Entry point
 └── index.html
 ```
+
+## Development
+
+### Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/ardeshirvalipoor/base-ui.git
+cd base-ui
+
+# Install all workspace dependencies
+npm install
+
+# Build the example app (watches for changes)
+npm run build:example
+
+# Serve locally
+npm run start:example
+# Visit http://localhost:9876
+```
+
+### Workspace Structure
+
+This project uses [npm workspaces](https://docs.npmjs.com/cli/using-npm/workspaces):
+
+- **`packages/baseline`** — The library (published to npm)
+- **`examples/demo-app`** — Example app (not published, uses `workspace:*` dependency)
+
+The example app imports `@codesuma/baseline` like any consumer would, but npm workspaces resolve it to the local `packages/baseline/` directory.
+
+## Publishing to npm
+
+```bash
+# Navigate to the library package
+cd packages/baseline
+
+# Login to npm (first time only)
+npm login
+
+# Bump version
+npm version patch    # 1.0.18 → 1.0.19  (bug fixes)
+npm version minor    # 1.0.18 → 1.1.0   (new features)
+npm version major    # 1.0.18 → 2.0.0   (breaking changes)
+
+# Publish
+npm publish --access public
+```
+
+Only the files listed in `package.json` → `files` are published:
+- `components/**/*`
+- `helpers/**/*`
+- `lib/**/*`
+- `utils/**/*`
+- `index.ts`
+- `README.md`
+
+The `examples/` directory and build output are **never** included in the npm package.
 
 ## Philosophy
 

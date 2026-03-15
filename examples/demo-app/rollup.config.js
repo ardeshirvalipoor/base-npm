@@ -7,7 +7,7 @@ import terser from '@rollup/plugin-terser'
 export default {
     input: 'index.ts',
     output: {
-        file: '../build/bundle.js',
+        file: './build/bundle.js',
         format: 'iife',
         sourcemap: true,
     },
@@ -17,7 +17,7 @@ export default {
             extensions: ['.js', '.ts']
         }),
         typescript({
-            include: ["**/*.ts"]
+            include: ["**/*.ts", "../../packages/baseline/**/*.ts"]
         }),
         postcss({
             modules: true,  // Enable CSS modules

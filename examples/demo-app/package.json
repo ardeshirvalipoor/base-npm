@@ -1,12 +1,12 @@
 {
-  "name": "emerald-client-v2",
+  "name": "baseline-demo-app",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Demo app for @codesuma/baseline",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "http-server www/ -p 9876 -c -i",
+    "start": "http-server build/ -p 9876 -c -i",
     "compile": "rollup -c -w"
   },
   "keywords": [],
@@ -25,7 +25,7 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@codesuma/baseline": "^1.0.3",
+    "@codesuma/baseline": "workspace:*",
     "@emotion/css": "^11.13.5",
     "@rollup/plugin-terser": "^0.4.4"
   }

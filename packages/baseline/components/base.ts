@@ -2,9 +2,6 @@ import { nextId } from '../utils/id'
 import { createAppender, IAppender } from '../utils/appender'
 import { createStyler, IStyler } from '../utils/styler'
 import { createEmitter, IEmitter } from '../utils/emitter'
-import { initMounter } from '../utils/mounter'
-
-initMounter()
 
 export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K): IBaseComponent<K> {
     const id = nextId()

@@ -1,4 +1,4 @@
-import ldb from '../baseline/lib/ldb'
+import { ldb } from '@codesuma/baseline'
 
 function getHeader() {
 

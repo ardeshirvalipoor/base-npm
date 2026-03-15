@@ -33,16 +33,17 @@ const markMounted = (component: AnyComponent) => {
 export function createAppender(base: AnyComponent): IAppender {
     let children: AnyComponent[] = []
 
+    // Internal setter — used by child.remove() to update parent's children list
+    const setChildren = (c: AnyComponent[]) => { children = c }
+
     // Register for root detection (will be cleaned up once mounted)
     pendingRoots.add(base)
     initObserver()
 
     return {
-        children,
-
         getChildren: () => children,
 
-        setChildren: (c: AnyComponent[]) => { children = c },
+        _setChildren: setChildren,
 
         append(...args: (AnyComponent | false | null | undefined)[]) {
             for (const c of args) {
@@ -116,8 +117,25 @@ export function createAppender(base: AnyComponent): IAppender {
         remove() {
             children.forEach(c => c.remove())
             if (base.parent) {
-                base.parent.setChildren(base.parent.getChildren().filter(c => c !== base))
+                const parentChildren = base.parent.getChildren().filter(c => c !== base)
+                base.parent._setChildren(parentChildren)
             }
+            base.isMounted = false
+            base.emit('unmounted')
+            pendingRoots.delete(base)
+            base.el.remove()
+        },
+
+        destroy() {
+            children.forEach(c => {
+                if (typeof (c as any).destroy === 'function') (c as any).destroy()
+                else c.remove()
+            })
+            if (base.parent) {
+                const parentChildren = base.parent.getChildren().filter(c => c !== base)
+                base.parent._setChildren(parentChildren)
+            }
+            base.isMounted = false
             base.emit('unmounted')
             base.removeAllListeners()
             pendingRoots.delete(base)
@@ -127,15 +145,16 @@ export function createAppender(base: AnyComponent): IAppender {
 }
 
 export interface IAppender {
-    children: AnyComponent[]
     getChildren(): AnyComponent[]
-    setChildren(c: AnyComponent[]): void
+    /** @internal */
+    _setChildren(c: AnyComponent[]): void
     append(...args: (AnyComponent | false | null | undefined)[]): AnyComponent
     prepend(...args: AnyComponent[]): AnyComponent
     appendBefore(ref: AnyComponent, ...args: AnyComponent[]): AnyComponent
     appendAfter(ref: AnyComponent, ...args: AnyComponent[]): AnyComponent
     empty(): void
     remove(): void
+    destroy(): void
 }
 
 export default createAppender

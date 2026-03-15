@@ -1,0 +1,13 @@
+{
+  "name": "baseline-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build:example": "npm run compile --workspace=examples/demo-app",
+    "start:example": "npm run start --workspace=examples/demo-app",
+    "publish:lib": "npm publish --workspace=packages/baseline --access public"
+  }
+}
