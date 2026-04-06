@@ -12,6 +12,35 @@ export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K
 
     Object.assign(component, createEmitter(), createAppender(component), createStyler(component))
 
+    const _on = component.on.bind(component)
+    const _off = component.off.bind(component)
+    const domHandlers = new Map<Function, Function>()
+
+    const isDomEvent = (event: string) => ('on' + event) in el
+
+    component.on = (event: string | string[], handler: Function) => {
+        const events = Array.isArray(event) ? event : [event]
+        for (const e of events) {
+            if (isDomEvent(e)) {
+                const wrapped = (domEvent: Event) => handler(domEvent)
+                domHandlers.set(handler, wrapped)
+                el.addEventListener(e, wrapped as EventListener)
+            }
+        }
+        return _on(event, handler)
+    }
+
+    component.off = (event: string, handler?: Function) => {
+        if (handler && isDomEvent(event)) {
+            const wrapped = domHandlers.get(handler)
+            if (wrapped) {
+                el.removeEventListener(event, wrapped as EventListener)
+                domHandlers.delete(handler)
+            }
+        }
+        return _off(event, handler)
+    }
+
     return component
 }
 

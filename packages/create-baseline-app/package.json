@@ -1,0 +1,31 @@
+{
+  "name": "@codesuma/create-baseline-app",
+  "version": "1.0.0",
+  "description": "Create a new Baseline app with a single command",
+  "bin": {
+    "create-baseline-app": "bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "template/"
+  ],
+  "keywords": [
+    "baseline",
+    "create",
+    "scaffold",
+    "cli",
+    "spa",
+    "imperative",
+    "ui-framework"
+  ],
+  "author": "ardeshirvalipoor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ardeshirvalipoor/base-ui.git",
+    "directory": "packages/create-baseline-app"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
