@@ -10,7 +10,9 @@
     "start:example": "npm run start --workspace=examples/demo-app",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset version && changeset publish",
+    "publish:baseline": "npm publish --workspace=packages/baseline --access public",
+    "publish:create-app": "npm publish --workspace=packages/create-baseline-app --access public"
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0"
