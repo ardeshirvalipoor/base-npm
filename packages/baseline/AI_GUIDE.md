@@ -98,6 +98,36 @@ export const Form = (action = '') => {
 3. Export as default object with methods (and optionally a `create*` factory)
 4. Add the export to `index.ts`
 
+## DOM Event Proxy
+
+`Base()` and `BaseSVG()` automatically proxy native DOM events through `.on()`/`.off()`. This is handled by the internal `proxyDomEvents()` helper in `base.ts`.
+
+**How it works:**
+- When `.on(event, handler)` is called, if `'on' + event` exists on the element (e.g. `onclick`, `onfocus`), the handler is also registered via `el.addEventListener`
+- `.off(event, handler)` removes both the emitter listener and the DOM listener
+- Custom/framework events (e.g. `'mounted'`, `'save'`) pass through the emitter only
+- This means consumers never need to use `el.addEventListener` directly
+
+**Key implementation details:**
+- The proxy wraps each handler and stores the mapping in a `Map<Function, Function>` so `.off()` can find and remove the correct DOM listener
+- If `el.onXxx` is already set (e.g. `el.onclick` in Button, `el.onchange` in Select), the proxy skips `addEventListener` for that event to avoid double-firing. The component's manual `el.onXxx → emit()` bridge takes priority, preserving custom payloads
+- Native components that enrich event payloads (Input emits `{ value, event }` for `change`, Select emits the value string) MUST use `el.onXxx` to prevent the proxy from also registering a raw DOM listener
+
+**Pattern — component communication via emitter:**
+```typescript
+// Child emits
+const row = Div()
+row.emit('save', data)
+row.emit('finish', newBlocks)
+
+// Parent listens
+const child = BlockRow()
+child.on('save', () => persist())
+child.on('finish', (data) => rerender(data))
+```
+
+This is the idiomatic way for child→parent communication in Baseline. Prefer emitter events over callback options.
+
 ## Component Lifecycle
 
 ```

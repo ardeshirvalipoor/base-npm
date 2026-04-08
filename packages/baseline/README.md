@@ -92,24 +92,31 @@ checkbox.on('change', (checked) => console.log(checked))
 
 ### Events
 
-Components have a built-in event emitter:
+Components have a built-in event emitter that **automatically proxies native DOM events**. Use `.on()` for both DOM events (`click`, `focus`, `input`, etc.) and custom events — no need for `el.addEventListener`:
 
 ```typescript
 const btn = Button()
 
-// Listen to events
+// Native DOM events — automatically proxied to el.addEventListener
 btn.on('click', () => console.log('clicked!'))
+btn.on('mouseenter', () => console.log('hovered'))
+btn.on('focus', () => console.log('focused'))
+
+// Framework lifecycle events
 btn.on('mounted', () => console.log('in the DOM'))
+
+// Custom events (component communication via emitter)
+btn.emit('save', { id: 1 })
+btn.on('save', (data) => console.log(data))
 
 // Listen once
 btn.once('click', () => console.log('first click only'))
 
-// Emit custom events
-btn.emit('my-event', { data: 123 })
-
-// Remove listener
+// Remove listener — removes both emitter and DOM listener
 btn.off('click', handler)
 ```
+
+> **How it works:** When `.on(event, handler)` is called, if `event` is a native DOM event (e.g. `'click'`, `'focus'`, `'blur'`), the handler is automatically registered on the underlying `el` via `addEventListener`. Custom events go through the emitter only. `.off()` cleans up both.
 
 ### Styling
 

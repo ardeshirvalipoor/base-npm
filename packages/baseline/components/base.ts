@@ -3,15 +3,7 @@ import { createAppender, IAppender } from '../utils/appender'
 import { createStyler, IStyler } from '../utils/styler'
 import { createEmitter, IEmitter } from '../utils/emitter'
 
-export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K): IBaseComponent<K> {
-    const id = nextId()
-    const el = document.createElement(name)
-    el.setAttribute('data-base-id', id)
-
-    const component: any = { id, el, isMounted: false, parent: undefined }
-
-    Object.assign(component, createEmitter(), createAppender(component), createStyler(component))
-
+function proxyDomEvents(component: any, el: Element) {
     const _on = component.on.bind(component)
     const _off = component.off.bind(component)
     const domHandlers = new Map<Function, Function>()
@@ -21,7 +13,7 @@ export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K
     component.on = (event: string | string[], handler: Function) => {
         const events = Array.isArray(event) ? event : [event]
         for (const e of events) {
-            if (isDomEvent(e)) {
+            if (isDomEvent(e) && !(el as any)['on' + e]) {
                 const wrapped = (domEvent: Event) => handler(domEvent)
                 domHandlers.set(handler, wrapped)
                 el.addEventListener(e, wrapped as EventListener)
@@ -40,6 +32,17 @@ export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K
         }
         return _off(event, handler)
     }
+}
+
+export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K): IBaseComponent<K> {
+    const id = nextId()
+    const el = document.createElement(name)
+    el.setAttribute('data-base-id', id)
+
+    const component: any = { id, el, isMounted: false, parent: undefined }
+
+    Object.assign(component, createEmitter(), createAppender(component), createStyler(component))
+    proxyDomEvents(component, el)
 
     return component
 }
@@ -52,6 +55,7 @@ export function BaseSVG<K extends keyof SVGElementTagNameMap>(name: K = 'svg' as
     const component: any = { id, el, isMounted: false, parent: undefined }
 
     Object.assign(component, createEmitter(), createAppender(component), createStyler(component))
+    proxyDomEvents(component, el)
 
     return component
 }
