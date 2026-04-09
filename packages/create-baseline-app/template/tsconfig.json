@@ -13,7 +13,10 @@
             "DOM.Iterable",
             "ES2020"
         ],
-        "baseUrl": "."
+        "baseUrl": ".",
+        "plugins": [
+            { "name": "typescript-plugin-css-modules" }
+        ]
     },
     "include": [
         "src/**/*"
