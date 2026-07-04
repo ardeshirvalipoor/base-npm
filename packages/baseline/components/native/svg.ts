@@ -12,7 +12,5 @@ export const SVG = (viewBox: string | number, height?: number) => {
         base.el.setAttribute('height', String(h))
     }
 
-    return Object.assign(base, {
-        html(content: string) { base.el.innerHTML = content }
-    })
+    return base
 }

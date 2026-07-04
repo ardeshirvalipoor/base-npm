@@ -28,7 +28,7 @@ A SPA built with the [Baseline](https://www.npmjs.com/package/@codesuma/baseline
 - Do NOT add React/Vue/Svelte patterns (hooks, refs, signals, JSX)
 - Do NOT use `class` or `extends`
 - Do NOT add runtime dependencies beyond `@codesuma/baseline`
-- Do NOT use `el.addEventListener` directly — use Baseline's `.on()` method which auto-proxies DOM events
+- **Reach for the Baseline API first.** When Baseline ships an idiomatic equivalent for what you'd otherwise write with raw JS or the raw DOM, use the Baseline one. This is the single most common mistake — falling back to `document.createElement`, `addEventListener`, `el.className =`, `localStorage`, raw `fetch`, or ad-hoc globals when there's already a baseline answer. See the [Baseline-first cheat sheet](#baseline-first-cheat-sheet) below.
 - Do NOT use callback options for component communication — use the emitter pattern (`emit`/`on`)
 
 ## File Organization
@@ -48,6 +48,148 @@ A SPA built with the [Baseline](https://www.npmjs.com/package/@codesuma/baseline
     │   ├── home/index.ts    
     │   └── about/index.ts   
     └── services/            # Pure logic, API calls, state
+```
+
+## Baseline-first cheat sheet
+
+The single biggest source of non-idiomatic code is reaching for raw JS / DOM / web APIs when Baseline already has the answer. Default to the Baseline equivalent; only drop to raw JS at boundaries Baseline doesn't cover (DOM measurements, observers, file/clipboard APIs, etc.).
+
+### Equivalents at a glance
+
+| Concern               | Raw JS / DOM (avoid)                                  | Baseline (use)                                                      |
+|-----------------------|--------------------------------------------------------|---------------------------------------------------------------------|
+| Element creation      | `document.createElement('div')`                        | `Div()` / `Button()` / `Input(...)` / … or `Base('tag')` for niche tags |
+| Event listener        | `el.addEventListener('click', h)`                      | `c.on('click', h)`                                                  |
+| Remove listener       | `el.removeEventListener(...)`                          | `c.off('click', h)`                                                 |
+| Append child          | `parent.el.appendChild(child.el)`                      | `parent.append(child)`                                              |
+| Insert before / after | `parent.el.insertBefore(...)`                          | `parent.appendBefore(ref, c)` / `appendAfter(ref, c)` / `prepend(c)` |
+| Clear children        | `el.innerHTML = ''`                                    | `c.empty()`                                                         |
+| Detach element        | `el.remove()` (raw)                                    | `c.remove()` (also fires `unmounted`, cleans children)              |
+| Class manipulation    | `el.className = 'x'` / `classList.add/remove/toggle`   | `c.addClass(x)` / `removeClass(x)` / `toggleClass(x, on?)`          |
+| Text content          | `el.textContent = 'x'`                                 | `c.text('x')`                                                       |
+| HTML content          | `el.innerHTML = '<b>x</b>'`                            | `c.html('<b>x</b>')`                                                |
+| Attribute             | `el.setAttribute('data-x', 'y')` / `getAttribute(...)` | `c.attr('data-x', 'y')` / `c.attr('data-x')`                        |
+| Inline style          | `el.style.color = 'red'`                               | `c.style({ color: 'red' })`                                         |
+| Component event bus   | callbacks in options / ad-hoc emitter                  | `c.emit('save', payload)` + `parent.on('save', h)`                  |
+| Local storage         | `localStorage.setItem` / `getItem` (+ manual JSON)     | `ldb.set(key, obj)` / `ldb.get(key)`                                |
+| IndexedDB             | raw `indexedDB...` boilerplate                         | `idb('app').save(store, item)` / `.find(store, query)` / `.get(...)` |
+| HTTP                  | `fetch('/api/x').then(r => r.json())`                  | `await http.get('/api/x')` (with request dedup)                     |
+| Cross-component state | window globals, ad-hoc event buses                     | `state.set(k, v)` / `state.get(k)` / `state.on(k, h)`               |
+| SPA navigation        | `history.pushState` + manual handlers                  | `router.goto('/path')` / `router.on('change', h)`                   |
+
+### Native HTML elements: factory list
+
+Always reach for these so the resulting element gets `.on()`, `.addClass()`, `.append()`, `.emit()`, lifecycle events, and integrates cleanly with Baseline parents.
+
+| Tag(s)                  | Factory                                                                                              |
+|-------------------------|------------------------------------------------------------------------------------------------------|
+| `<div>`                 | `Div(text?)`                                                                                         |
+| `<span>`                | `Span(text?)`                                                                                        |
+| `<p>`                   | `P(text?)`                                                                                           |
+| `<h1>`–`<h6>`           | `H1` … `H6`                                                                                          |
+| `<button>`              | `Button(text?)`                                                                                      |
+| `<input>` / `<textarea>`| `Input(placeholder?, type?, options?)` — supports `'text'`, `'color'`, `'checkbox'`, `'textarea'`, etc. |
+| `<a>`                   | `A(text?, href?)`                                                                                    |
+| `<img>`                 | `Img(src?)`                                                                                          |
+| `<select>` / `<option>` | `Select` / `Option`                                                                                  |
+| `<canvas>`              | `Canvas()`                                                                                           |
+| `<svg>`                 | `SVG()`                                                                                              |
+
+For tags without a dedicated factory, drop down to `Base('tag')` — you still get the full mixin set:
+
+```typescript
+import { Base } from '@codesuma/baseline'
+
+const figure = Base('figure')
+figure.addClass(styles.figure)
+figure.on('click', () => ...)
+```
+
+### Antipattern → idiomatic
+
+Mixing raw DOM into a Baseline component is the most common mistake. Side by side:
+
+```typescript
+// ❌ Antipattern — bypasses every Baseline affordance
+const btn = document.createElement('button')
+btn.type = 'button'                          // also unnecessary outside a <form>
+btn.className = styles.resetBtn
+btn.textContent = 'Reset'
+btn.addEventListener('click', handle)
+parent.el.appendChild(btn)
+
+// ✅ Idiomatic
+const btn = Button('Reset')
+btn.addClass(styles.resetBtn)
+btn.on('click', handle)
+parent.append(btn)
+```
+
+Same rule for inputs — there is no excuse to `document.createElement('input')` even for typed inputs:
+
+```typescript
+// ❌
+const swatch = document.createElement('input')
+swatch.type = 'color'
+swatch.addEventListener('input', () => ...)
+
+// ✅
+const swatch = Input('', 'color', { value: '#ff8800' })
+swatch.on('input', ({ value }) => ...)
+```
+
+### When raw JS is the right answer
+
+Baseline doesn't wrap everything, and shouldn't. Use raw JS at the boundaries:
+
+- DOM measurements (`getBoundingClientRect`, `offsetWidth`, `scrollTop`)
+- Observers (`IntersectionObserver`, `ResizeObserver`, `MutationObserver`)
+- One-off browser APIs (Clipboard, File, Notification, Geolocation, Web Workers, WebSocket)
+- Reading from a Baseline component's underlying element (`c.el.focus()`, `c.el.scrollIntoView()`) — `.el` is the documented escape hatch
+
+If you find yourself reaching past `.el` for something that *isn't* one of these, stop and look for the Baseline method first.
+
+### File decomposition: prefer many small files
+
+A component folder is the unit, not a single file. When a component grows, split along its natural seams instead of letting `index.ts` swell. Sibling files share the same `.module.css` (CSS Modules scope by file, but a `styles` import resolves to the same map across the folder).
+
+**Common seams**
+
+- **Container vs. row.** A `list` component owns the panel/header/empty-state; a sibling `item.ts` (or `row.ts`, `field.ts`) owns the per-row rendering. The list iterates and calls the item factory.
+- **Rendering vs. pure data shaping.** Walking a tree, inferring kinds, normalizing values — these are pure functions that don't touch the DOM. Move them out so the component file is just composition.
+- **Kind-specific render branches.** When a single render function carries an `if (kind === 'color') … else if (kind === 'size') …` ladder that's growing, lift each branch into its own factory.
+
+**Heuristics**
+
+- ~200 lines is the soft ceiling for one file. Past it, look for a seam.
+- If you can describe two parts of the file with different one-line summaries, they belong in different files.
+- A doc comment at the top of the file should describe *that file*, not a tour of three concerns. If the comment has three sections, the code probably wants three files.
+
+**Example layout**
+
+```
+components/token-list/
+├── index.ts            # TokenList panel: header, expand/collapse, dirty badge, form scaffold
+├── field.ts            # renderField + kind inference + value coercion (the "row")
+├── index.module.css    # shared styles for both
+```
+
+`index.ts` imports from `./field`; both import `styles` from `./index.module.css`. Keep doc comments local: each file's header describes only its own responsibility.
+
+### Project-level wrappers
+
+When the same component shape repeats (e.g. a "secondary button" with consistent styling), wrap the factory once and reuse it. This is the idiomatic alternative to copying class lists across call sites:
+
+```typescript
+// components/secondary-button/index.ts
+import { Button } from '@codesuma/baseline'
+import styles from './index.module.css'
+
+export const SecondaryButton = (text: string) => {
+    const base = Button(text)
+    base.addClass(styles.base)
+    return base
+}
 ```
 
 ## Key Patterns

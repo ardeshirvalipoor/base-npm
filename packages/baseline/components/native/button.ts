@@ -11,7 +11,6 @@ export const Button = (text = '') => {
         focus() { base.el.focus() },
         blur() { base.el.blur() },
         disable() { base.el.disabled = true },
-        enable() { base.el.disabled = false },
-        text(t: string) { base.el.textContent = t }
+        enable() { base.el.disabled = false }
     })
 }

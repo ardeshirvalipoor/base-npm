@@ -148,7 +148,7 @@ export interface IAppender {
     getChildren(): AnyComponent[]
     /** @internal */
     _setChildren(c: AnyComponent[]): void
-    append(...args: (AnyComponent | false | null | undefined)[]): AnyComponent
+    append(...args: (AnyComponent | Promise<AnyComponent> | false | null | undefined)[]): AnyComponent
     prepend(...args: AnyComponent[]): AnyComponent
     appendBefore(ref: AnyComponent, ...args: AnyComponent[]): AnyComponent
     appendAfter(ref: AnyComponent, ...args: AnyComponent[]): AnyComponent

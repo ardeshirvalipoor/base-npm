@@ -17,7 +17,8 @@ export default {
             extensions: ['.js', '.ts']
         }),
         typescript({
-            include: ['src/**/*.ts', 'node_modules/@codesuma/baseline/**/*.ts']
+            include: ['src/**/*.ts', 'node_modules/@codesuma/baseline/**/*.ts'],
+            exclude: ['node_modules/@codesuma/baseline/**/*.test.ts']
         }),
         postcss({
             modules: true,

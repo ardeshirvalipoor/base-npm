@@ -5,7 +5,7 @@
 ## Architecture Principles (MUST follow)
 
 1. **Factory functions, not classes** — Never introduce class-based components
-2. **Composition via `Object.assign`** — New capabilities are added via mixin factories (`createEmitter`, `createAppender`, `createStyler`)
+2. **Composition via `Object.assign`** — New capabilities are added via mixin factories (`createEmitter`, `createAppender`, `createStyler`, `createContent`)
 3. **No runtime dependencies** — Never add npm dependencies to the library
 4. **Direct DOM** — No virtual DOM, no diffing, no reactivity magic
 5. **Explicit over implicit** — No hidden state, no proxy-based reactivity
@@ -59,7 +59,8 @@ baseline/
 ├── utils/                ← Internal capability factories
 │   ├── emitter.ts        ← Event emitter (dual-purpose)
 │   ├── appender.ts       ← DOM tree management + mounting
-│   ├── styler.ts         ← Inline styles, classes, attr, text
+│   ├── styler.ts         ← Inline styles, classes, attr
+│   ├── content.ts        ← text/html content setters
 │   ├── id.ts             ← ID generators
 │   ├── ripple.ts         ← Material ripple effect
 │   └── wait.ts           ← Promise-based delay

@@ -66,7 +66,27 @@ export const Page = () => {
         }
     })
 
-    return base
+    return Object.assign(base, {
+        // Show the page immediately, skipping the enter animation entirely
+        showInstant() {
+            base.style({ transition: 'none' })
+            base.removeClass(styles.exitUp, styles.exitDown, styles.hiddenBelow, styles.hiddenAbove, styles.enterUp, styles.enterDown)
+            void base.el.offsetHeight
+            base.addClass(styles.enterUp)
+            base.el.setAttribute('aria-hidden', 'false')
+            void base.el.offsetHeight
+            base.style({ transition: '' })
+        },
+
+        // Force the downward exit variant regardless of navigation direction
+        async exitDown() {
+            base.removeClass(styles.enterUp, styles.enterDown)
+            base.addClass(styles.exitDown)
+            await waitFor(TRANSITION_DURATION)
+            base.el.setAttribute('aria-hidden', 'true')
+            base.addClass(styles.hiddenBelow)
+        }
+    })
 }
 
 export default Page

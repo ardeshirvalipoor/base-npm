@@ -83,7 +83,7 @@ export function createRouter() {
 
         // Exit current page with direction — await async handlers
         if (currentPage) {
-            await currentPage.emit('exit', {
+            await currentPage.emitAsync('exit', {
                 params: {},
                 query: getQuery(),
                 from: currentPath,

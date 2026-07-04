@@ -83,12 +83,20 @@ const input = Input('Enter name...', 'text')
 const checkbox = Input('Stay signed in', 'checkbox', { checked: true })
 const number = Input('Age', 'number', { min: 0, max: 100 })
 const date = Input('Date', 'date')
+const swatch = Input('', 'color', { value: '#ff8800' })
 
 // Checkbox helpers
 checkbox.isChecked() // true
 checkbox.toggle()
 checkbox.on('change', (checked) => console.log(checked))
 ```
+
+> **Reach for the Baseline API first.** Whenever Baseline ships an idiomatic equivalent for what you'd otherwise write with raw JS or the raw DOM, use the Baseline one — element creation (`Div` / `Button` / `Base('tag')` over `document.createElement`), events (`.on()` over `addEventListener`), tree (`.append` / `.empty` / `.remove` over `el.appendChild` / `innerHTML=''`), classes (`.addClass` / `.toggleClass` over `el.className=`), text/attrs/styles (`.text` / `.attr` / `.style` over `el.textContent` / `setAttribute` / `el.style.x=`), storage (`ldb` / `idb` over `localStorage` / `indexedDB`), fetch (`http` over `fetch`), shared state (`state` over ad-hoc globals). Drop to raw JS only at the boundaries Baseline doesn't cover (DOM measurements, observers, Clipboard / File APIs, etc.).
+>
+> ```typescript
+> // ❌ const btn = document.createElement('button'); btn.addEventListener('click', h)
+> // ✅ const btn = Button('Reset'); btn.on('click', h)
+> ```
 
 ### Events
 

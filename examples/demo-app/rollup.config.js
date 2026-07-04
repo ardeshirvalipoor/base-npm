@@ -17,7 +17,8 @@ export default {
             extensions: ['.js', '.ts']
         }),
         typescript({
-            include: ["**/*.ts", "../../packages/baseline/**/*.ts"]
+            include: ["**/*.ts", "../../packages/baseline/**/*.ts"],
+            exclude: ["../../packages/baseline/**/*.test.ts"]
         }),
         postcss({
             modules: true,  // Enable CSS modules

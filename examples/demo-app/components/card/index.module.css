@@ -1,16 +1,18 @@
 /* Card component styles */
 .base {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 16px;
-    margin: 100px auto;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
     padding: 50px;
+    margin: 60px auto 0;
     text-align: center;
+    color: var(--text);
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .base:hover {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 24px rgba(30, 20, 60, 0.14);
 }
 
 /* Dark mode variant */

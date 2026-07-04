@@ -18,8 +18,25 @@
   <link rel="apple-touch-icon" href="/icon.png" />
   <link rel="shortcut icon" href="/icon.png" />
   <link rel="icon" sizes="512x512" href="/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bundle.css">
   <style>
+    :root {
+      --bg: #f5f4fb;
+      --surface: #ffffff;
+      --text: #2c2a3d;
+      --text-muted: #8b899e;
+      --brand: #6c5ce7;
+      --brand-fg: #ffffff;
+      --border: #e6e3f2;
+      --press: rgba(108, 92, 231, 0.10);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --shadow-sm: 0 2px 10px rgba(30, 20, 60, 0.06);
+    }
+
     *:not(input) {
       -webkit-touch-callout: none;
       -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -33,9 +50,8 @@
     * {
       -webkit-overflow-scrolling: touch;
       box-sizing: border-box;
-      font-family: "Open sans", "Samim", "Lucida Grande", "Lucida Sans", Arial,
+      font-family: "Quicksand", "Open sans", "Samim", "Lucida Grande", "Lucida Sans", Arial,
         sans-serif;
-      word-spacing: -2px;
     }
 
     html {
@@ -44,6 +60,54 @@
       overflow: hidden;
       height: 100vh;
       width: 100vw;
+      background: var(--bg);
+    }
+
+    button {
+      font: inherit;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:hover {
+      background: var(--press);
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+      transform: none;
+    }
+
+    input,
+    select,
+    textarea {
+      font: inherit;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      background: var(--surface);
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      accent-color: var(--brand);
+    }
+
+    input[type="color"] {
+      padding: 3px;
+      width: 52px;
+      height: 36px;
     }
 
     input::-webkit-outer-spin-button,
@@ -70,10 +134,7 @@
       -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     }
 
-    input[type="text"],
-    input[type="button"] {
-      padding: 0;
-    }
+
 
     body {
       margin: 0;

@@ -1,6 +1,7 @@
 import { nextId } from '../utils/id'
 import { createAppender, IAppender } from '../utils/appender'
 import { createStyler, IStyler } from '../utils/styler'
+import { createContent, IContent } from '../utils/content'
 import { createEmitter, IEmitter } from '../utils/emitter'
 
 function proxyDomEvents(component: any, el: Element) {
@@ -34,40 +35,33 @@ function proxyDomEvents(component: any, el: Element) {
     }
 }
 
-export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K): IBaseComponent<K> {
-    const id = nextId()
-    const el = document.createElement(name)
+function buildComponent(id: string, el: Element): any {
     el.setAttribute('data-base-id', id)
 
     const component: any = { id, el, isMounted: false, parent: undefined }
 
-    Object.assign(component, createEmitter(), createAppender(component), createStyler(component))
+    Object.assign(component, createEmitter(), createAppender(component), createStyler(component), createContent(component))
     proxyDomEvents(component, el)
 
     return component
+}
+
+export function Base<K extends keyof HTMLElementTagNameMap>(name: K = 'div' as K): IBaseComponent<K> {
+    return buildComponent(nextId(), document.createElement(name))
 }
 
 export function BaseSVG<K extends keyof SVGElementTagNameMap>(name: K = 'svg' as K): IBaseSVGComponent<K> {
-    const id = nextId()
-    const el = document.createElementNS('http://www.w3.org/2000/svg', name)
-    el.setAttribute('data-base-id', id)
-
-    const component: any = { id, el, isMounted: false, parent: undefined }
-
-    Object.assign(component, createEmitter(), createAppender(component), createStyler(component))
-    proxyDomEvents(component, el)
-
-    return component
+    return buildComponent(nextId(), document.createElementNS('http://www.w3.org/2000/svg', name))
 }
 
-export interface IBaseComponent<K extends keyof HTMLElementTagNameMap = 'div'> extends IEmitter, IAppender, IStyler {
+export interface IBaseComponent<K extends keyof HTMLElementTagNameMap = 'div'> extends IEmitter, IAppender, IStyler, IContent {
     id: string
     el: HTMLElementTagNameMap[K]
     parent?: IBaseComponent<any>
     isMounted: boolean
 }
 
-export interface IBaseSVGComponent<K extends keyof SVGElementTagNameMap = 'svg'> extends IEmitter, IAppender, IStyler {
+export interface IBaseSVGComponent<K extends keyof SVGElementTagNameMap = 'svg'> extends IEmitter, IAppender, IStyler, IContent {
     id: string
     el: SVGElementTagNameMap[K]
     parent?: IBaseComponent<any> | IBaseSVGComponent<any>

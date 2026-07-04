@@ -8,8 +8,7 @@
     bottom: 0;
     width: 100%;
     height: 100%;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    padding: env(safe-area-inset-top) calc(env(safe-area-inset-right) + 60px) env(safe-area-inset-bottom) calc(env(safe-area-inset-left) + 60px);
     background-color: #fff;
     z-index: 100;
     will-change: opacity, transform;

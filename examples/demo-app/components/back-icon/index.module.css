@@ -20,6 +20,7 @@
 
 .base:hover {
     opacity: 0.8;
+    background: var(--press);
 }
 
 .base:active {
@@ -41,7 +42,8 @@
 .bar {
     width: 15px;
     height: 3px;
-    background-color: #000;
+    background-color: var(--text);
+    border-radius: 2px;
     position: absolute;
 }
 

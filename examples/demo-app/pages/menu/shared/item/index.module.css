@@ -1,6 +1,20 @@
 .base {
     position: relative;
-    font-size: 18px;
-    padding: 20px 0px 15px;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+    padding: 16px 18px;
+    margin: 0 20px 8px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
     overflow: hidden;
+}
+
+.base:hover {
+    background: var(--press);
+}
+
+.base:active {
+    transform: scale(0.98);
 }

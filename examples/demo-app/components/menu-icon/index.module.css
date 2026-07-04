@@ -19,6 +19,7 @@
 
 .base:hover {
     opacity: 0.8;
+    background: var(--press);
 }
 
 .base:active {

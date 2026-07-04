@@ -24,16 +24,6 @@ export function createStyler(base: Component): IStyler {
             return base
         },
 
-        text(content: string) {
-            base.el.textContent = content
-            return base
-        },
-
-        html(content: string) {
-            base.el.innerHTML = content
-            return base
-        },
-
         addClass(...classes: string[]) {
             base.el.classList.add.apply(base.el.classList, classes)
             return base
@@ -65,8 +55,6 @@ export function injectCSS(id: string, css: string) {
 export interface IStyler {
     style(s: CS, delay?: number): Component
     attr(key: string, value?: string): string | null | Component
-    text(content: string): Component
-    html(content: string): Component
     addClass(...classes: string[]): Component
     removeClass(...classes: string[]): Component
     toggleClass(cls: string, force?: boolean): Component

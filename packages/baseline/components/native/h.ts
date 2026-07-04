@@ -4,9 +4,7 @@ const createHeading = (tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', content = '
     const base = Base(tag)
     if (content) base.el.textContent = content
 
-    return Object.assign(base, {
-        text(t: string) { base.el.textContent = t }
-    })
+    return base
 }
 
 export const H1 = (content = '') => createHeading('h1', content)
