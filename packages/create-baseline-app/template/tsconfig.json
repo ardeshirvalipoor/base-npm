@@ -8,6 +8,11 @@
         "strict": true,
         "allowJs": true,
         "outDir": "./build",
+        // Explicit rootDir keeps TS emit paths stable when baseline's .ts sources
+        // (under node_modules) join the program — without it the rollup TS plugin
+        // computes shifting output paths and silently skips transforming src files
+        // (parse errors on TS-only syntax at best, untranspiled code at worst).
+        "rootDir": ".",
         "lib": [
             "DOM",
             "DOM.Iterable",
@@ -19,9 +24,10 @@
         ]
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "node_modules/@codesuma/baseline/**/*.ts"
     ],
     "exclude": [
-        "node_modules"
+        "node_modules/@codesuma/baseline/**/*.test.ts"
     ]
 }

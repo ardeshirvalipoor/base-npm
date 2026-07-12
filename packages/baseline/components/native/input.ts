@@ -116,7 +116,15 @@ export function Input(placeholder = '', type: InputType = 'text', options: Input
     if (options.required) inputEl.required = true
     if (options.autofocus) setTimeout(() => inputEl.focus(), 0)
 
-    // Events - Proxy from inputEl to base emitter
+    // Events - Proxy to the base emitter. Bubbling events are forwarded from
+    // base.el (for a label wrapper that's the label the inner input's events
+    // bubble to); assigning the on<event> property there also stops
+    // proxyDomEvents from adding a second native listener for the same event,
+    // which would call `.on()` handlers twice — once with this payload and
+    // once with the raw DOM event.
+    const eventEl: HTMLElement = hasLabel ? base.el as HTMLElement : inputEl
+
+    // focus/blur don't bubble, so they stay on the input itself
     inputEl.onblur = (e) => base.emit('blur', e)
     inputEl.onfocus = (e) => base.emit('focus', e)
 
@@ -127,10 +135,10 @@ export function Input(placeholder = '', type: InputType = 'text', options: Input
         return val
     }
 
-    inputEl.oninput = (e) => base.emit('input', { value: emitValue(), event: e })
-    inputEl.onchange = (e) => base.emit('change', { value: emitValue(), event: e })
+    eventEl.oninput = (e) => base.emit('input', { value: emitValue(), event: e })
+    eventEl.onchange = (e) => base.emit('change', { value: emitValue(), event: e })
 
-    inputEl.onkeydown = (e: KeyboardEvent) => {
+    eventEl.onkeydown = (e: KeyboardEvent) => {
         if (e.key === 'Enter') base.emit('enter', { value: inputEl.value, event: e })
         if (e.key === 'Escape') base.emit('escape', e)
         base.emit('keydown', { key: e.key, value: inputEl.value, event: e })
@@ -149,7 +157,7 @@ export function Input(placeholder = '', type: InputType = 'text', options: Input
         toggle() {
             if ('checked' in inputEl) {
                 (inputEl as HTMLInputElement).checked = !(inputEl as HTMLInputElement).checked
-                base.emit('change', (inputEl as HTMLInputElement).checked)
+                base.emit('change', { value: (inputEl as HTMLInputElement).checked })
             }
         }
     }) as any

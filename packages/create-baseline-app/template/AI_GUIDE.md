@@ -192,6 +192,23 @@ export const SecondaryButton = (text: string) => {
 }
 ```
 
+## Platform-idiomatic cheat sheet
+
+The Baseline-first rule covers what Baseline provides. When code legitimately drops below Baseline to raw DOM / CSS / web APIs, the same spirit applies: use the platform's current, purpose-built solution — not the legacy pattern, and not a JS re-implementation of a native feature.
+
+| Need | Legacy / roundabout (avoid) | Idiomatic (use) |
+| ---- | --------------------------- | --------------- |
+| Unified input (touch + mouse + pen) | paired `touchstart`/`mousedown` handlers | Pointer Events + `setPointerCapture` + CSS `touch-action` |
+| An element's text color for borders / SVG / shadows | reading `getComputedStyle(...).color` in JS | `currentColor` / `inherit` |
+| One value shared across many styles | duplicated literals, styles set from JS | CSS custom properties (`--x`) set once |
+| Square / fixed-ratio boxes | padding-top percentage hack, JS resize math | `aspect-ratio` |
+| Full-height layout on mobile | `100vh` + JS viewport corrections | `dvh` (keep a `vh` fallback line) |
+| Spacing between siblings | margin arithmetic + `:last-child` resets | flex/grid `gap` |
+| Reacting to visibility or size changes | scroll/resize listeners + `getBoundingClientRect` math | `IntersectionObserver` / `ResizeObserver` |
+| Keyboard-only focus styles | JS input-modality tracking | `:focus-visible` |
+
+Rule of thumb: if JavaScript is measuring or computing a value only to hand it straight back to a style or layout, the platform almost certainly has a declarative feature for it.
+
 ## Key Patterns
 
 ### Component Creation
