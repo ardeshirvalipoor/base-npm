@@ -1,5 +1,14 @@
 # @codesuma/baseline
 
+## 1.2.2
+
+### Patch Changes
+
+- 1ad4384: - `idb`: a cached connection now closes itself on `versionchange`, so a store upgrade requested from another tab is no longer held up until this tab's idle timer closes the connection. The next call reopens at the new version.
+  - `http.get`: concurrent requests are deduplicated by URL together with `auth` and `headers`, not by URL alone, so two GETs with different tokens no longer share one response.
+  - Components waiting to enter the document are held weakly, so one that is built and never appended anywhere is no longer checked on every DOM mutation for the life of the page.
+- 1ad4384: Fix the router carrying `isBack` into the next navigation after a `popstate` that lands on the current path. The popstate handler set `isBackNavigation` before checking whether the path had changed, and only `navigate()` cleared it, so an entry the app had pushed itself for a query change on the same route (a two-panel layout opening a second item beside a list) left the flag set once the user went back. The next `goto()` was then treated as a back navigation: no `pushState`, the address stayed put, and a later `back()` skipped the page the user expected to return to. The flag is now set only when the popstate actually navigates.
+
 ## 1.2.1
 
 ### Patch Changes
