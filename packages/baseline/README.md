@@ -518,7 +518,7 @@ Built-in fetch wrapper with request deduplication:
 ```typescript
 import { http } from '@codesuma/baseline'
 
-// GET (automatically deduplicated - same URL = same request)
+// GET (concurrent calls with the same URL, headers and auth share one request)
 const { status, data } = await http.get('/api/users')
 
 // POST, PUT, PATCH, DELETE
@@ -550,6 +550,10 @@ ldb.get('user')                     // Auto JSON parse
 ldb.remove('user')
 ldb.clear()
 ```
+
+`get()` parses whatever it reads, so a string that looks like JSON comes back as
+that value: `ldb.set('n', '1')` reads back as the number `1`. Wrap the result in
+`String()` where the text itself is what matters.
 
 ### IndexedDB
 

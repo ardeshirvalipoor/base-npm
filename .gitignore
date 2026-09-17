@@ -5,5 +5,5 @@ dist
 *.log
 .vscode
 .idea
-build/bundle.*
+**/build/bundle.*
 package-lock.json

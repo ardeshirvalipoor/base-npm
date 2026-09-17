@@ -4,14 +4,38 @@ type AnyComponent = IBaseComponent<any> | IBaseSVGComponent<any>
 
 // Lightweight observer - only checks if element entered document.body
 let observer: MutationObserver | null = null
-const pendingRoots: Set<AnyComponent> = new Set()
+
+// Components waiting to enter the document, so a root attached with raw DOM
+// calls still gets 'mounted'. Held weakly: a component that is built and never
+// appended anywhere would otherwise sit here for the life of the page and be
+// checked on every DOM mutation. WeakRef is reached through the global so the
+// library still compiles against an ES2020 lib; where it is missing the hold
+// is simply strong, which is what it always was.
+interface Ref { deref(): AnyComponent | undefined }
+const WeakRefCtor: (new (c: AnyComponent) => Ref) | undefined = (globalThis as any).WeakRef
+const pendingRoots: Set<Ref> = new Set()
+const refs = new WeakMap<AnyComponent, Ref>()
+
+const watch = (c: AnyComponent) => {
+    const ref: Ref = WeakRefCtor ? new WeakRefCtor(c) : { deref: () => c }
+    refs.set(c, ref)
+    pendingRoots.add(ref)
+}
+
+const unwatch = (c: AnyComponent) => {
+    const ref = refs.get(c)
+    if (ref) pendingRoots.delete(ref)
+}
 
 const initObserver = () => {
     if (observer) return
     observer = new MutationObserver(() => {
-        pendingRoots.forEach(component => {
-            if (document.body.contains(component.el)) {
-                pendingRoots.delete(component)
+        pendingRoots.forEach(ref => {
+            const component = ref.deref()
+            // Collected, or in the document: either way no longer waited on.
+            if (!component) pendingRoots.delete(ref)
+            else if (document.body.contains(component.el)) {
+                pendingRoots.delete(ref)
                 markMounted(component)
             }
         })
@@ -37,7 +61,7 @@ export function createAppender(base: AnyComponent): IAppender {
     const setChildren = (c: AnyComponent[]) => { children = c }
 
     // Register for root detection (will be cleaned up once mounted)
-    pendingRoots.add(base)
+    watch(base)
     initObserver()
 
     return {
@@ -54,7 +78,7 @@ export function createAppender(base: AnyComponent): IAppender {
                         base.el.appendChild(resolved.el)
                         children.push(resolved)
                         resolved.parent = base
-                        pendingRoots.delete(resolved) // No longer pending
+                        unwatch(resolved) // No longer pending
                         if (base.isMounted) markMounted(resolved)
                     })
                     continue
@@ -63,7 +87,7 @@ export function createAppender(base: AnyComponent): IAppender {
                 base.el.appendChild(c.el)
                 children.push(c)
                 c.parent = base
-                pendingRoots.delete(c) // No longer pending - has parent
+                unwatch(c) // No longer pending - has parent
                 if (base.isMounted) markMounted(c)
             }
             base.emit('append', args)
@@ -76,7 +100,7 @@ export function createAppender(base: AnyComponent): IAppender {
                 base.el.insertBefore(c.el, base.el.firstChild)
                 children.unshift(c)
                 c.parent = base
-                pendingRoots.delete(c)
+                unwatch(c)
                 if (base.isMounted) markMounted(c)
             }
             base.emit('prepend', args)
@@ -90,7 +114,7 @@ export function createAppender(base: AnyComponent): IAppender {
                 const idx = children.indexOf(ref)
                 children.splice(idx, 0, c)
                 c.parent = base
-                pendingRoots.delete(c)
+                unwatch(c)
                 if (base.isMounted) markMounted(c)
             }
             return base
@@ -103,7 +127,7 @@ export function createAppender(base: AnyComponent): IAppender {
                 const idx = children.indexOf(ref)
                 children.splice(idx + 1, 0, c)
                 c.parent = base
-                pendingRoots.delete(c)
+                unwatch(c)
                 if (base.isMounted) markMounted(c)
             }
             return base
@@ -122,7 +146,7 @@ export function createAppender(base: AnyComponent): IAppender {
             }
             base.isMounted = false
             base.emit('unmounted')
-            pendingRoots.delete(base)
+            unwatch(base)
             base.el.remove()
         },
 
@@ -138,7 +162,7 @@ export function createAppender(base: AnyComponent): IAppender {
             base.isMounted = false
             base.emit('unmounted')
             base.removeAllListeners()
-            pendingRoots.delete(base)
+            unwatch(base)
             base.el.remove()
         }
     }

@@ -21,6 +21,21 @@ const connections: Record<string, IDBDatabase> = {}
 const closeTimers: Record<string, ReturnType<typeof setTimeout>> = {}
 const IDLE_TIMEOUT = 2000
 
+// Keeps a connection for reuse, and lets it go when the browser closes it or
+// when an upgrade asks for it: opening the database at a newer version — from
+// another tab, or from createStore below — fires versionchange on every open
+// connection, and the upgrade waits until they close. Closing here lets it
+// through; the next call reopens at the new version.
+const cache = (name: string, db: IDBDatabase) => {
+    connections[name] = db
+    db.onclose = () => { if (connections[name] === db) delete connections[name] }
+    db.onversionchange = () => {
+        db.close()
+        if (connections[name] === db) delete connections[name]
+    }
+    resetIdleTimer(name)
+}
+
 const getConnection = (name: string, version?: number): Promise<IDBDatabase> => {
     // Version upgrade always needs a fresh connection
     if (version !== undefined) {
@@ -45,12 +60,7 @@ const getConnection = (name: string, version?: number): Promise<IDBDatabase> => 
     return new Promise((resolve, reject) => {
         const req = indexedDB.open(name)
         req.onsuccess = () => {
-            connections[name] = req.result
-
-            // Clean up cache if browser closes the connection
-            req.result.onclose = () => { delete connections[name] }
-
-            resetIdleTimer(name)
+            cache(name, req.result)
             resolve(req.result)
         }
         req.onerror = () => reject(req.error)
@@ -179,10 +189,7 @@ function createDatabase(dbName: string) {
                     }
                 }
                 req.onsuccess = () => {
-                    // Cache the new connection
-                    connections[dbName] = req.result
-                    req.result.onclose = () => { delete connections[dbName] }
-                    resetIdleTimer(dbName)
+                    cache(dbName, req.result)
                     resolve()
                 }
                 req.onerror = () => reject(req.error)

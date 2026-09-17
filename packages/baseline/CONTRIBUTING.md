@@ -71,11 +71,16 @@ The key rules:
 
 ## Publishing
 
+Releases go through changesets, from the repo root:
+
 ```bash
-cd packages/baseline
-npm version patch  # or minor / major
-npm publish --access public
+npm run changeset        # describe the change and pick patch / minor / major
+npm run release          # bumps versions and changelogs, then publishes
 ```
+
+`npm run version-packages` does the bump on its own and `npm run publish:baseline`
+publishes on its own, for when the two steps should be separate. Commit the
+changeset together with the change it describes.
 
 Only the files listed in `package.json` → `files` are published.
 - `components/**/*`

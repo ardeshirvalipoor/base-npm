@@ -41,7 +41,7 @@ const request = async <T = any>(
     return { status: res.status, data }
 }
 
-// Deduplicated request - same URL returns same promise
+// Deduplicated request - the same key shares one promise while it is in flight
 const dedupe = <T>(key: string, fn: () => Promise<T>): Promise<T> => {
     if (!pending[key]) {
         pending[key] = fn().finally(() => delete pending[key])
@@ -51,8 +51,11 @@ const dedupe = <T>(key: string, fn: () => Promise<T>): Promise<T> => {
 
 // Public API
 export const http = {
+    // Keyed by everything that can change the answer, not the address alone:
+    // two GETs to one URL with different headers or tokens are two requests.
     get: <T = any>(url: string, options?: RequestOptions) =>
-        dedupe(url, () => request<T>('GET', url, undefined, options)),
+        dedupe(JSON.stringify([url, options?.auth, options?.headers]),
+            () => request<T>('GET', url, undefined, options)),
 
     post: <T = any>(url: string, body?: any, options?: RequestOptions) =>
         request<T>('POST', url, body, options),

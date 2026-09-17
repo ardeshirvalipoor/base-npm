@@ -143,9 +143,13 @@ export function createRouter() {
         initialized = true
 
         window.addEventListener('popstate', (e) => {
-            isBackNavigation = true  // Mark as back navigation
             const path = window.location.pathname
+            // Only when there is a navigation to carry the flag. A popstate
+            // that lands on the current path — an entry the app pushed itself
+            // for a query change — is ignored here, and a flag set for it
+            // would leak into the next goto(), which would then skip pushState.
             if (path !== currentPath) {
+                isBackNavigation = true  // Mark as back navigation
                 navigate(path, e.state)
             }
         })

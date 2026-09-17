@@ -156,4 +156,28 @@ describe('router', () => {
         expect(backEvent).toBeTruthy()
         expect(router.getPath()).toBe('/a')
     })
+
+    it('does not carry the back flag from a popstate that lands on the current path', async () => {
+        const { router, view } = setup()
+        const a = Page()
+        const b = Page()
+        const events: IRouteEvent[] = []
+        b.on('enter', (e: IRouteEvent) => events.push(e))
+
+        router.routes({ '/a': () => a, '/b': () => b }, view)
+        await router.goto('/a')
+        // An entry the app pushed itself for a query change on the same path,
+        // the way a two-panel layout does when a second item opens beside a list.
+        history.pushState(null, '', '/a?item=2')
+        router.back()
+        await new Promise(r => setTimeout(r, 20))
+        expect(router.getPath()).toBe('/a')
+
+        // The next forward navigation must still be a forward one: entered
+        // with isBack false, and with its own history entry.
+        await router.goto('/b')
+
+        expect(events[0]?.isBack).toBe(false)
+        expect(window.location.pathname).toBe('/b')
+    })
 })
