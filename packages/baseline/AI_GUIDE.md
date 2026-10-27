@@ -110,8 +110,9 @@ export const Form = (action = '') => {
 - This means consumers never need to use `el.addEventListener` directly
 
 **Key implementation details:**
-- The proxy wraps each handler and stores the mapping in a `Map<Function, Function>` so `.off()` can find and remove the correct DOM listener
-- If `el.onXxx` is already set (e.g. `el.onclick` in Button, `el.onchange` in Select), the proxy skips `addEventListener` for that event to avoid double-firing. The component's manual `el.onXxx → emit()` bridge takes priority, preserving custom payloads
+- The proxy registers the handler itself with `addEventListener`, so `.off()` removes it with `removeEventListener`, one event at a time. The handler receives the DOM event
+- If `el.onXxx` is already set (e.g. `el.onchange` in Select), the proxy skips `addEventListener` for that event to avoid double-firing. The component's manual `el.onXxx → emit()` bridge takes priority, preserving custom payloads
+- Don't set `el.onXxx` just to forward an event unchanged: handlers would then get the `emit()` payload instead of the DOM event
 - Native components that enrich event payloads (Input emits `{ value, event }` for `change`, Select emits the value string) MUST use `el.onXxx` to prevent the proxy from also registering a raw DOM listener
 
 **Pattern — component communication via emitter:**

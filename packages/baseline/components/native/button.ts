@@ -5,7 +5,6 @@ export const Button = (text = '') => {
 
     base.style({ cursor: 'pointer' })
     base.el.textContent = text
-    base.el.onclick = () => base.emit('click')
 
     return Object.assign(base, {
         focus() { base.el.focus() },
