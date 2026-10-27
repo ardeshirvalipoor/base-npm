@@ -45,7 +45,9 @@ export function createRouter() {
     const pageCache: Record<string, IBaseComponent<any>> = {}
     let routeConfigs: Routes = {}
     let initialized = false
-    let isBackNavigation = false
+    // The navigation in progress. It never rejects, so the ones waiting
+    // behind it still run if it fails.
+    let busy: Promise<void> | null = null
 
     // Find matching route
     const matchRoute = (path: string): { pattern: string; params: Record<string, string> } | null => {
@@ -66,13 +68,24 @@ export function createRouter() {
         return key ? params.get(key) : Object.fromEntries(params)
     }
 
-    // Handle navigation. `initial` marks the first one, to the page the
-    // browser opened on (see init).
-    const navigate = async (to: string, data?: any, initial = false) => {
+    // One navigation at a time. A goto() that comes while another one waits
+    // for its exit animation starts after it, so it compares its path with
+    // the page that one landed on. Before, a double tap pushed two history
+    // entries for one page.
+    const navigate = async (to: string, data?: any, isBack = false, initial = false) => {
+        while (busy) await busy
+        const run = go(to, data, isBack, initial)
+        busy = run.then(() => { busy = null }, () => { busy = null })
+        return run
+    }
+
+    // `isBack` marks a navigation from the browser's back or forward
+    // button. `initial` marks the first one, to the page the browser
+    // opened on (see init).
+    const go = async (to: string, data: any, isBack: boolean, initial: boolean) => {
         const url = new URL(to, window.location.origin)
         const path = url.pathname
         const from = currentPath
-        const isBack = isBackNavigation
 
         if (path === currentPath) return
 
@@ -133,9 +146,6 @@ export function createRouter() {
             data,
             isBack
         })
-
-        // Reset back flag
-        isBackNavigation = false
     }
 
     // Initialize router
@@ -144,22 +154,14 @@ export function createRouter() {
         initialized = true
 
         window.addEventListener('popstate', (e) => {
-            const path = window.location.pathname
-            // Only when there is a navigation to carry the flag. A popstate
-            // that lands on the current path — an entry the app pushed itself
-            // for a query change — is ignored here, and a flag set for it
-            // would leak into the next goto(), which would then skip pushState.
-            if (path !== currentPath) {
-                isBackNavigation = true  // Mark as back navigation
-                navigate(path, e.state)
-            }
+            navigate(window.location.pathname, e.state, true)
         })
 
         // The page the browser opened on already has its history entry, so no
         // new one is pushed. A copy would make the first back() land on the
         // same path, which popstate ignores, so it would take two to leave.
         if (currentPath === '' && viewContainer) {
-            navigate(window.location.pathname + window.location.search, undefined, true)
+            navigate(window.location.pathname + window.location.search, undefined, false, true)
         }
     }
 

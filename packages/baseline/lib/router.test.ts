@@ -181,6 +181,41 @@ describe('router', () => {
         expect(window.location.pathname).toBe('/b')
     })
 
+    it('pushes one history entry for a double tap that comes during the exit animation', async () => {
+        const { router, view } = setup()
+        const a = Page()
+        a.on('exit', () => new Promise(r => setTimeout(r, 20)))
+
+        router.routes({ '/a': () => a, '/b': Page }, view)
+        await router.goto('/a')
+        const before = history.length
+        await Promise.all([router.goto('/b'), router.goto('/b')])
+
+        expect(history.length).toBe(before + 1)
+        expect(router.getPath()).toBe('/b')
+    })
+
+    it('runs a goto() that comes during another one after it', async () => {
+        const { router, view } = setup()
+        const order: string[] = []
+        const track = (name: string) => () => {
+            const page = Page()
+            page.on('enter', () => order.push(name + '-enter'))
+            page.on('exit', async () => {
+                await new Promise(r => setTimeout(r, 10))
+                order.push(name + '-exit')
+            })
+            return page
+        }
+
+        router.routes({ '/a': track('a'), '/b': track('b'), '/c': track('c') }, view)
+        await router.goto('/a')
+        await Promise.all([router.goto('/b'), router.goto('/c')])
+
+        expect(order).toEqual(['a-enter', 'a-exit', 'b-enter', 'b-exit', 'c-enter'])
+        expect(window.location.pathname).toBe('/c')
+    })
+
     it('leaves the page it opened on in one back()', async () => {
         // An app reloaded on /menu, with /home behind it in the history.
         history.replaceState(null, '', '/home')
