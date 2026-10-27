@@ -4,7 +4,7 @@ import { Section } from '../../components/section'
 import { theme } from '../../theme'
 
 export const TransitionsPage = () => {
-    const page: any = Page()
+    const page = Page()
     const title = PageHeader('Transitions')
 
     const info = Section('Default transition')

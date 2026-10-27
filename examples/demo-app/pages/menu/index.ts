@@ -7,7 +7,6 @@ export const MenuPage = () => {
     const page = Page()
     const title = PageHeader('Menu')
     const about = MenuItem('About', '/about')
-    const login = MenuItem('Login', '/login')
     const components = MenuItem('Components', '/components')
     const forms = MenuItem('Forms', '/forms')
     const routerDemo = MenuItem('Router Demo', '/router-demo')
@@ -17,10 +16,7 @@ export const MenuPage = () => {
     const utilities = MenuItem('Utilities', '/utilities')
     const helpers = MenuItem('Helpers', '/helpers')
 
-    page.append(title, about, login, components, forms, routerDemo, transitions, data, events, utilities, helpers)
+    page.append(title, about, components, forms, routerDemo, transitions, data, events, utilities, helpers)
     page.style({ overflowY: 'auto', background: theme.bg })
-    page.on('exit', () => {
-        console.log('exit')
-    })
     return page
 }

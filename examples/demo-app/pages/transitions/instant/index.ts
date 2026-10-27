@@ -3,7 +3,7 @@ import { PageHeader } from '../../../components/page-header'
 import { theme } from '../../../theme'
 
 export const InstantPage = () => {
-    const page: any = Page()
+    const page = Page()
     const title = PageHeader('Instant')
     const note = Div('This page overrode the default enter animation with page.showInstant() - it appeared with no slide-in transition.')
     note.style({ color: theme.textMuted })

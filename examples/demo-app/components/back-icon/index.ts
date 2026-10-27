@@ -12,7 +12,7 @@ export const BackIcon = () => {
     base.addClass(styles.base)
     base.append(top, bottom)
 
-    base.el.onclick = () => router.back()
+    base.on('click', () => router.back())
 
     router.on('change', ({ path }: any) => {
         path === '/' ? hide() : show()

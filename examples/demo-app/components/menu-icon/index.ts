@@ -14,10 +14,10 @@ export const MenuIcon = () => {
     top.style({ width: '50%' })
     bottom.style({ width: '80%' })
 
-    base.el.onclick = () => router.goto('/menu')
+    base.on('click', () => router.goto('/menu'))
 
     router.on('change', ({ path }: any) => {
-        path.split('?')[0] === '/' ? show() : hide()
+        path === '/' ? show() : hide()
     })
 
     async function show() {

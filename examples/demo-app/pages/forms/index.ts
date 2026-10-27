@@ -28,7 +28,7 @@ export const FormsPage = () => {
     const checkbox = Input('Stay signed in', 'checkbox', { checked: true })
     const radioA = Input('Option A', 'radio', { name: 'demo-radio' })
     const radioB = Input('Option B', 'radio', { name: 'demo-radio' })
-    checkbox.on('change', (checked: boolean) => log.log('checkbox change: ' + checked))
+    checkbox.on('change', ({ value }: any) => log.log('checkbox change: ' + value))
 
     const toggleBtn = Button('toggle()')
     toggleBtn.on('click', () => { checkbox.toggle(); log.log('isChecked() -> ' + checkbox.isChecked()) })

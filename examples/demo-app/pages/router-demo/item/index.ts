@@ -10,7 +10,7 @@ export const RouterItemPage = () => {
     const page = Page()
     const title = PageHeader('Item detail')
 
-    const info = Section('Params (from :id)')
+    const info = Section('Params (from :id) and query')
     const idOut = Div()
     info.add(idOut)
 
@@ -25,8 +25,8 @@ export const RouterItemPage = () => {
     cache.add(createdOut, destroyBtn)
     cache.content.append(Div('Revisit this item from the Router Demo page - the factory count above should increase, proving the cached page was evicted.'))
 
-    page.on('enter', ({ params }: IRouteEvent) => {
-        idOut.text('id = ' + params.id)
+    page.on('enter', ({ params, query }: IRouteEvent) => {
+        idOut.text('id = ' + params.id + ', query = ' + JSON.stringify(query))
     })
 
     page.append(title, info, cache)

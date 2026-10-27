@@ -31,7 +31,7 @@ export const ComponentsPage = () => {
     // A
     const links = Section('A (anchor)')
     const link = A('#', 'A link (prevented)', '_self')
-    link.el.onclick = (e) => { e.preventDefault(); log.log('Anchor clicked, href=' + link.el.href) }
+    link.on('click', (e: MouseEvent) => { e.preventDefault(); log.log('Anchor clicked, href=' + link.el.href) })
     const download = A('data:text/plain,hello%20baseline', 'Download link')
     download.download('hello.txt')
     links.add(link, download)

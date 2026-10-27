@@ -1,5 +1,4 @@
-import { Page, Button, Div, nextId, shortUUID, uuidv4, injectCSS, createStyler, createContent, createEmitter, CS } from "@codesuma/baseline"
-import { createAppender } from "@codesuma/baseline/utils/appender"
+import { Page, Button, Div, nextId, shortUUID, uuidv4, injectCSS, CS } from "@codesuma/baseline"
 import { PageHeader } from '../../components/page-header'
 import { Section } from '../../components/section'
 import { LogBox } from '../../components/log-box'
@@ -45,20 +44,10 @@ export const UtilitiesPage = () => {
     })
     cssSection.add(flashTarget, flashBtn)
 
-    // --- composing a component by hand from the raw mixins (matches what Base() does internally) ---
-    const mixinSection = Section('Manual mixin composition (createEmitter + createAppender + createStyler + createContent)')
-    const customEl = document.createElement('div')
-    const custom: any = { el: customEl, isMounted: false, parent: undefined }
-    Object.assign(custom, createEmitter(), createAppender(custom), createStyler(custom), createContent(custom))
-    custom.style({ padding: '10px', border: `1px dashed ${theme.brand}`, borderRadius: theme.radiusSm })
-    custom.text('This element was assembled by hand from the same mixins Base() uses internally.')
-    custom.on('click', () => log.log('manually-composed component emitted click'))
-    mixinSection.add(custom)
-
     const output = Section('Output')
     output.add(log)
 
-    page.append(title, idSection, rippleSection, cssSection, mixinSection, output)
+    page.append(title, idSection, rippleSection, cssSection, output)
     page.style({ overflowY: 'auto', background: theme.bg })
 
     return page

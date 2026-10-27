@@ -9,8 +9,8 @@ export const Card = () => {
     base.text('Card')
 
     // Example: hover effect with JS (if needed dynamically)
-    base.el.onmouseenter = () => base.style({ transform: 'translateY(-4px)' })
-    base.el.onmouseleave = () => base.style({ transform: 'translateY(0)' })
+    base.on('mouseenter', () => base.style({ transform: 'translateY(-4px)' }))
+    base.on('mouseleave', () => base.style({ transform: 'translateY(0)' }))
 
     return base
 }

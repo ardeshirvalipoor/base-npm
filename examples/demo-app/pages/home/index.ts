@@ -11,7 +11,7 @@ export const HomePage = () => {
     const chck = Input('Check me', 'checkbox')
     const text = Input('Enter name...', 'text')
 
-    chck.on('change', (checked: boolean) => card.text(checked ? 'Checked!' : 'Card'))
+    chck.on('change', ({ value }: any) => card.text(value ? 'Checked!' : 'Card'))
     text.on('enter', ({ value }: any) => card.text(value || 'Card'))
 
     const form = Div()

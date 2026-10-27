@@ -19,8 +19,9 @@ export const RouterDemoPage = () => {
     params.add(item1, item2)
 
     const query = Section('Query string')
-    const withQuery = Div('Go with ?tab=details&sort=asc'); withQuery.style(linkStyle)
-    withQuery.on('click', () => router.goto('/router-demo?tab=details&sort=asc'))
+    // To another path: a goto() to the page you are on does nothing
+    const withQuery = Div('Go to item 3 with ?tab=details&sort=asc'); withQuery.style(linkStyle)
+    withQuery.on('click', () => router.goto('/router-demo/item/3?tab=details&sort=asc'))
     query.add(withQuery)
 
     const wildcard = Section('Wildcard fallback (*)')
