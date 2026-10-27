@@ -14,9 +14,3 @@
 .base:hover {
     box-shadow: 0 10px 24px rgba(30, 20, 60, 0.14);
 }
-
-/* Dark mode variant */
-.base.dark {
-    background: #1a1a1a;
-    color: #fff;
-}

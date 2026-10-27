@@ -1,9 +1,7 @@
 import { Div } from "@codesuma/baseline";
 
 export const View = () => {
-
-    const base = Div() // Fragment later
-    // console.log('is running in browser', isRunningInBrowser());
+    const base = Div()
 
     base.style({
         position: 'relative',
@@ -14,16 +12,6 @@ export const View = () => {
         height: window.innerHeight + 'px',
         overflow: 'hidden',
         width: '100vw',
-    })
-
-    setTimeout(() => {
-        // base.style({ height: window.innerHeight + 'px' })
-    }, 3000);
-    // setTimeout(() => {
-    //     base.style({ height: window.innerHeight + 'px' })
-    // }, 3000);
-    window.addEventListener('resize', () => {
-        // base.style({ height: window.innerHeight + 'px' })
     })
 
     return base

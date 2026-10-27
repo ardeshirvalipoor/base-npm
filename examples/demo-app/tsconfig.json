@@ -5,13 +5,12 @@
         "module": "es6",
         "moduleResolution": "node",
         "declaration": false,
-        "emitDecoratorMetadata": true,
         "downlevelIteration": true,
         "sourceMap": true,
         "strictNullChecks": true,
         "allowJs": true,
         "outDir": "./build",
-        "experimentalDecorators": true,
+        "types": [],
         "lib": [
             "dom",
             "dom.iterable",
@@ -37,6 +36,8 @@
     ],
     "exclude": [
         "node_modules",
-        "../../packages/baseline/**/*.test.ts"
+        "rollup.config.js",
+        "../../packages/baseline/**/*.test.ts",
+        "../../packages/baseline/vitest.config.ts"
     ]
 }
