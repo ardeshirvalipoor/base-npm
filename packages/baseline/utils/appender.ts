@@ -151,19 +151,9 @@ export function createAppender(base: AnyComponent): IAppender {
         },
 
         destroy() {
-            children.forEach(c => {
-                if (typeof (c as any).destroy === 'function') (c as any).destroy()
-                else c.remove()
-            })
-            if (base.parent) {
-                const parentChildren = base.parent.getChildren().filter(c => c !== base)
-                base.parent._setChildren(parentChildren)
-            }
-            base.isMounted = false
-            base.emit('unmounted')
+            children.forEach(c => c.destroy())
+            base.remove()
             base.removeAllListeners()
-            unwatch(base)
-            base.el.remove()
         }
     }
 }

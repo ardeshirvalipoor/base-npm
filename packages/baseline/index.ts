@@ -2,7 +2,8 @@
 // Main entry point
 
 // Core component factory
-export { Base, IBaseComponent } from './components/base'
+export { Base } from './components/base'
+export type { IBaseComponent } from './components/base'
 
 // Native components
 export { Div } from './components/native/div'
@@ -22,16 +23,21 @@ export { SVG } from './components/native/svg'
 export { Page } from './components/advanced/page'
 
 // Libraries
-export { default as router, IRouteEvent, createRouter } from './lib/router'
+export { default as router, createRouter } from './lib/router'
+export type { IRouteEvent } from './lib/router'
 export { default as http } from './lib/http'
 export { default as ldb } from './lib/ldb'
-export { default as idb, IDatabase } from './lib/idb'
+export { default as idb } from './lib/idb'
+export type { IDatabase } from './lib/idb'
 export { default as state } from './lib/state'
 
 // Utilities
-export { createEmitter, emitter, IEmitter } from './utils/emitter'
-export { createStyler, injectCSS, IStyler, CS } from './utils/styler'
-export { createContent, IContent } from './utils/content'
+export { createEmitter, emitter } from './utils/emitter'
+export type { IEmitter } from './utils/emitter'
+export { createStyler, injectCSS } from './utils/styler'
+export type { IStyler, CS } from './utils/styler'
+export { createContent } from './utils/content'
+export type { IContent } from './utils/content'
 export { waitFor } from './utils/wait'
 export { initRipple } from './utils/ripple'
 export { nextId, shortUUID, uuidv4 } from './utils/id'

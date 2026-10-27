@@ -36,23 +36,9 @@ const cache = (name: string, db: IDBDatabase) => {
     resetIdleTimer(name)
 }
 
-const getConnection = (name: string, version?: number): Promise<IDBDatabase> => {
-    // Version upgrade always needs a fresh connection
-    if (version !== undefined) {
-        return new Promise((resolve, reject) => {
-            const req = indexedDB.open(name, version)
-            req.onsuccess = () => resolve(req.result)
-            req.onerror = () => reject(req.error)
-            req.onupgradeneeded = (e) => {
-                // Return the db via the stored handler (set by createStore)
-                const handler = (req as any).__onupgrade
-                if (handler) handler(e)
-            }
-        })
-    }
-
+const getConnection = (name: string): Promise<IDBDatabase> => {
     // Reuse cached connection
-    if (connections[name] && connections[name].version) {
+    if (connections[name]) {
         resetIdleTimer(name)
         return Promise.resolve(connections[name])
     }
@@ -69,13 +55,7 @@ const getConnection = (name: string, version?: number): Promise<IDBDatabase> => 
 
 const resetIdleTimer = (name: string) => {
     if (closeTimers[name]) clearTimeout(closeTimers[name])
-    closeTimers[name] = setTimeout(() => {
-        if (connections[name]) {
-            connections[name].close()
-            delete connections[name]
-        }
-        delete closeTimers[name]
-    }, IDLE_TIMEOUT)
+    closeTimers[name] = setTimeout(() => closeConnection(name), IDLE_TIMEOUT)
 }
 
 const closeConnection = (name: string) => {
@@ -110,6 +90,9 @@ const withStore = async <T>(
             resolve(req ? (req.result as T) : (undefined as T))
         }
         tx.onerror = () => reject(tx.error)
+        // A transaction can abort with no error event, for example when
+        // storage is full at commit. Without this the promise never settles.
+        tx.onabort = () => reject(tx.error)
     })
 }
 
@@ -158,6 +141,7 @@ const withCursor = async <T>(
             }
         }
         tx.onerror = () => reject(tx.error)
+        tx.onabort = () => reject(tx.error)
     })
 }
 

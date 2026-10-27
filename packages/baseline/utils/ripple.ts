@@ -21,7 +21,11 @@ const RIPPLE_CSS = `
 }
 `
 
+let initialized = false
+
 export const initRipple = () => {
+    if (initialized) return
+    initialized = true
     injectCSS('base-ripple', RIPPLE_CSS)
 
     let touchedRecently = false

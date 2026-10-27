@@ -21,7 +21,9 @@ export const remove = (key: string) => {
 }
 
 export const clear = () => {
-    Object.keys(data).forEach(k => delete data[k])
+    const keys = Object.keys(data)
+    keys.forEach(k => delete data[k])
+    keys.forEach(k => emitter.emit(k, undefined))
     emitter.emit('change', { key: '*', value: undefined })
 }
 
