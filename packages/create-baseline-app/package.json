@@ -22,7 +22,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ardeshirvalipoor/base-ui.git",
+    "url": "https://github.com/ardeshirvalipoor/base-npm.git",
     "directory": "packages/create-baseline-app"
   },
   "publishConfig": {

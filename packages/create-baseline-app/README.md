@@ -61,7 +61,7 @@ my-app/
 ## Learn More
 
 - [Baseline Documentation](https://www.npmjs.com/package/@codesuma/baseline)
-- [GitHub Repository](https://github.com/ardeshirvalipoor/base-ui)
+- [GitHub Repository](https://github.com/ardeshirvalipoor/base-npm)
 
 ## License
 
