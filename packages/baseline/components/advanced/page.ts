@@ -12,32 +12,21 @@ export const Page = () => {
     base.addClass(styles.page)  // Initial state is hidden below (in CSS)
     base.el.setAttribute('aria-hidden', 'true')
 
-    // Enter: direction based on isBack flag
-    base.on('enter', async ({ isBack }: IRouteEvent) => {
-        // Pre-position correctly before entering to ensure correct transition direction
-        if (isBack) {
-            base.addClass(styles.hiddenAbove)
-            base.removeClass(styles.hiddenBelow)
-        } else {
-            base.addClass(styles.hiddenBelow)
-            base.removeClass(styles.hiddenAbove)
-        }
+    // Enter: direction based on isBack flag. The router has already waited
+    // for the old page's exit, so the new page starts right away.
+    base.on('enter', ({ isBack }: IRouteEvent) => {
+        // Jump to the side the page enters from, with transitions off. The
+        // page is invisible there, so the jump does not show, and the enter
+        // animation does not start from the middle of a slide.
+        base.style({ transition: 'none' })
+        base.removeClass(styles.exitUp, styles.exitDown, styles.hiddenBelow, styles.hiddenAbove)
+        base.addClass(isBack ? styles.hiddenAbove : styles.hiddenBelow)
 
         // Force reflow so browser registers the starting position
-        // This is critical for the first transition to be smooth
         void base.el.offsetHeight
+        base.style({ transition: '' })
 
-        // Visual delay before entering
-        await waitFor(200)
-
-        // Clear all state classes
-        base.removeClass(
-            styles.exitUp,
-            styles.exitDown,
-            styles.hiddenBelow,
-            styles.hiddenAbove
-        )
-        // Add enter class (same visual result, but positioned correctly before)
+        base.removeClass(styles.hiddenBelow, styles.hiddenAbove)
         base.addClass(isBack ? styles.enterDown : styles.enterUp)
         base.el.setAttribute('aria-hidden', 'false')
     })
