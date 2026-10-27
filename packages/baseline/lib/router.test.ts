@@ -180,4 +180,21 @@ describe('router', () => {
         expect(events[0]?.isBack).toBe(false)
         expect(window.location.pathname).toBe('/b')
     })
+
+    it('leaves the page it opened on in one back()', async () => {
+        // An app reloaded on /menu, with /home behind it in the history.
+        history.replaceState(null, '', '/home')
+        history.pushState(null, '', '/menu')
+        const before = history.length
+        const { router, view } = setup()
+
+        router.routes({ '/home': Page, '/menu': Page }, view)
+        expect(router.getPath()).toBe('/menu')
+        expect(history.length).toBe(before)
+
+        router.back()
+        await new Promise(r => setTimeout(r, 20))
+
+        expect(router.getPath()).toBe('/home')
+    })
 })

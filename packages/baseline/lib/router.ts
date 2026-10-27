@@ -66,8 +66,9 @@ export function createRouter() {
         return key ? params.get(key) : Object.fromEntries(params)
     }
 
-    // Handle navigation
-    const navigate = async (to: string, data?: any) => {
+    // Handle navigation. `initial` marks the first one, to the page the
+    // browser opened on (see init).
+    const navigate = async (to: string, data?: any, initial = false) => {
         const url = new URL(to, window.location.origin)
         const path = url.pathname
         const from = currentPath
@@ -95,7 +96,7 @@ export function createRouter() {
 
         // Update state
         currentPath = path
-        if (!isBack) {
+        if (!isBack && !initial) {
             history.pushState(data, '', to)
         }
 
@@ -154,8 +155,11 @@ export function createRouter() {
             }
         })
 
+        // The page the browser opened on already has its history entry, so no
+        // new one is pushed. A copy would make the first back() land on the
+        // same path, which popstate ignores, so it would take two to leave.
         if (currentPath === '' && viewContainer) {
-            navigate(window.location.pathname + window.location.search)
+            navigate(window.location.pathname + window.location.search, undefined, true)
         }
     }
 
