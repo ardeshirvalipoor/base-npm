@@ -6,8 +6,9 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",
-    "serve": "http-server build/ -p 3000 -c-1 -s",
-    "dev": "concurrently \"npm run watch\" \"npm run serve\""
+    "serve": "http-server build/ -p 3000 -c-1 -s --proxy \"http://localhost:3000?\"",
+    "dev": "concurrently \"npm run watch\" \"npm run serve\"",
+    "web:stop": "node scripts/kill-port.mjs"
   },
   "dependencies": {
     "@codesuma/baseline": "^1.1.0"

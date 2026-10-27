@@ -14,7 +14,7 @@ Or with `npm create`:
 npm create @codesuma/baseline-app my-app
 ```
 
-Then follow the prompts:
+Without a name, it asks for one. Then:
 
 ```bash
 cd my-app
@@ -25,8 +25,11 @@ npm run dev
 
 ```
 my-app/
+├── .claude/skills/verify/  # How an AI agent checks a change
 ├── build/
 │   └── index.html          # Pre-configured HTML shell
+├── scripts/
+│   └── kill-port.mjs       # Frees the dev server's port (npm run web:stop)
 ├── src/
 │   ├── components/         # Your reusable components
 │   ├── pages/
@@ -36,9 +39,12 @@ my-app/
 │   ├── app.ts              # App setup with router
 │   ├── index.ts            # Entry point
 │   └── css-modules.d.ts    # TypeScript support for CSS modules
+├── AGENTS.md               # Rules for AI agents, imported by CLAUDE.md
+├── AI_GUIDE.md             # How to write Baseline code
+├── CLAUDE.md
 ├── package.json
 ├── rollup.config.js        # Rollup with TypeScript, CSS Modules, terser
-├── tsconfig.json
+├── tsconfig.json           # Strict; a type error fails the build
 └── .gitignore
 ```
 
@@ -49,7 +55,8 @@ my-app/
 | `npm run dev` | Build (watch mode) + serve on localhost:3000 |
 | `npm run build` | One-time production build |
 | `npm run watch` | Build with file watching |
-| `npm run serve` | Serve the `build/` directory |
+| `npm run serve` | Serve the `build/` directory. App routes such as `/about` open directly. |
+| `npm run web:stop` | Free port 3000 when a server is left running |
 
 ## Learn More
 

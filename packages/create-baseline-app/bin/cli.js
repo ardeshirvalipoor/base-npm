@@ -11,6 +11,8 @@ const CYAN = '\x1b[36m'
 const DIM = '\x1b[2m'
 const RESET = '\x1b[0m'
 
+const BINARY = /\.(png|jpe?g|gif|webp|ico|woff2?|ttf|otf)$/i
+
 function ask(question) {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
     return new Promise((resolve) => {
@@ -28,6 +30,9 @@ function copyDir(src, dest, replacements) {
         const destPath = path.join(dest, entry.name)
         if (entry.isDirectory()) {
             copyDir(srcPath, destPath, replacements)
+        } else if (BINARY.test(entry.name)) {
+            // Read as text, a binary file would come out corrupted
+            fs.copyFileSync(srcPath, destPath)
         } else {
             let content = fs.readFileSync(srcPath, 'utf-8')
             for (const [key, value] of Object.entries(replacements)) {

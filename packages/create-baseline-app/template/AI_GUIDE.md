@@ -64,7 +64,7 @@ The single biggest source of non-idiomatic code is reaching for raw JS / DOM / w
 | Append child          | `parent.el.appendChild(child.el)`                      | `parent.append(child)`                                              |
 | Insert before / after | `parent.el.insertBefore(...)`                          | `parent.appendBefore(ref, c)` / `appendAfter(ref, c)` / `prepend(c)` |
 | Clear children        | `el.innerHTML = ''`                                    | `c.empty()`                                                         |
-| Detach element        | `el.remove()` (raw)                                    | `c.remove()` (also fires `unmounted`, cleans children)              |
+| Detach element        | `el.remove()` (raw)                                    | `c.remove()` (also fires `unmounted`; keeps its children, so it can be appended again) |
 | Class manipulation    | `el.className = 'x'` / `classList.add/remove/toggle`   | `c.addClass(x)` / `removeClass(x)` / `toggleClass(x, on?)`          |
 | Text content          | `el.textContent = 'x'`                                 | `c.text('x')`                                                       |
 | HTML content          | `el.innerHTML = '<b>x</b>'`                            | `c.html('<b>x</b>')`                                                |
@@ -83,17 +83,17 @@ Always reach for these so the resulting element gets `.on()`, `.addClass()`, `.a
 
 | Tag(s)                  | Factory                                                                                              |
 |-------------------------|------------------------------------------------------------------------------------------------------|
-| `<div>`                 | `Div(text?)`                                                                                         |
+| `<div>`                 | `Div(html?)` — sets HTML, so pass user text through `.text()` instead                                |
 | `<span>`                | `Span(text?)`                                                                                        |
 | `<p>`                   | `P(text?)`                                                                                           |
 | `<h1>`–`<h6>`           | `H1` … `H6`                                                                                          |
 | `<button>`              | `Button(text?)`                                                                                      |
 | `<input>` / `<textarea>`| `Input(placeholder?, type?, options?)` — supports `'text'`, `'color'`, `'checkbox'`, `'textarea'`, etc. |
-| `<a>`                   | `A(text?, href?)`                                                                                    |
-| `<img>`                 | `Img(src?)`                                                                                          |
-| `<select>` / `<option>` | `Select` / `Option`                                                                                  |
-| `<canvas>`              | `Canvas()`                                                                                           |
-| `<svg>`                 | `SVG()`                                                                                              |
+| `<a>`                   | `A(href?, text?, target?)` — the address comes first                                                 |
+| `<img>`                 | `Img(src?, { width?, height?, alt? })`                                                               |
+| `<select>` / `<option>` | `Select([{ value, text }])` / `Option(value, text)`                                                  |
+| `<canvas>`              | `Canvas(width, height)`                                                                              |
+| `<svg>`                 | `SVG(viewBox)` with a string such as `'0 0 24 24'`, or `SVG(width, height?)`                         |
 
 For tags without a dedicated factory, drop down to `Base('tag')` — you still get the full mixin set:
 
@@ -253,7 +253,17 @@ Baseline's `.on()` automatically proxies native DOM events. No need for `el.addE
 
 ```typescript
 btn.on('click', (e: MouseEvent) => { ... })
-input.on('keydown', (e: KeyboardEvent) => { ... })
+card.on('pointerdown', (e: PointerEvent) => { ... })
+```
+
+`Input` and `Select` send their own payloads instead of the DOM event:
+
+- `Input`: `input`, `change` and `enter` send `{ value, event }`, and `keydown` sends `{ key, value, event }`. For a checkbox or radio, `value` is whether it is checked.
+- `Select`: `change` sends the selected value as a string.
+
+```typescript
+input.on('keydown', ({ key, value }) => { ... })
+checkbox.on('change', ({ value }) => save(value))
 ```
 
 ## Scripts
@@ -264,6 +274,7 @@ input.on('keydown', (e: KeyboardEvent) => { ... })
 | `npm run build` | One-time production build |
 | `npm run watch` | Build with file watching |
 | `npm run serve` | Serve the `build/` directory |
+| `npm run web:stop` | Free port 3000 when a server is left running |
 
 ## Adding a New Component
 

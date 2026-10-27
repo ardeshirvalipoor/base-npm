@@ -6,6 +6,7 @@
         "declaration": false,
         "sourceMap": true,
         "strict": true,
+        "noEmitOnError": true,
         "allowJs": true,
         "outDir": "./build",
         // Explicit rootDir keeps TS emit paths stable when baseline's .ts sources
@@ -18,7 +19,6 @@
             "DOM.Iterable",
             "ES2020"
         ],
-        "baseUrl": ".",
         "plugins": [
             { "name": "typescript-plugin-css-modules" }
         ]
