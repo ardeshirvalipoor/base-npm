@@ -17,10 +17,10 @@ const request = async <T = any>(
     body?: any,
     options: RequestOptions = {}
 ): Promise<{ status: number; data: T }> => {
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
+    // Content-Type only with a body. On a request to another domain, the
+    // header makes the browser send a preflight request first.
+    const headers: Record<string, string> = body ? { 'Content-Type': 'application/json' } : {}
+    Object.assign(headers, options.headers)
     if (options.auth) headers['Authorization'] = `Bearer ${options.auth}`
 
     const res = await fetch(url, {
