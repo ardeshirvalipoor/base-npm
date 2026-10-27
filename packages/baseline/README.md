@@ -790,7 +790,7 @@ src/
 └── services/         Data, API calls and shared state
 ```
 
-The [example app](https://github.com/ardeshirvalipoor/base-ui/tree/HEAD/examples/demo-app) in the repository uses every feature on this page.
+The [example app](https://github.com/ardeshirvalipoor/base-npm/tree/HEAD/examples/demo-app) in the repository uses every feature on this page.
 
 ## API reference
 
