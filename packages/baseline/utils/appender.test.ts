@@ -90,6 +90,81 @@ describe('appender', () => {
         expect(parent.getChildren()).toEqual([a, d, b, c])
     })
 
+    it('append() of a child that is already there moves it to the end without listing it twice', () => {
+        const parent = Base('div')
+        const a = Base('span')
+        const b = Base('span')
+        parent.append(a, b)
+
+        parent.append(a)
+
+        expect(parent.getChildren()).toEqual([b, a])
+        expect(parent.el.lastChild).toBe(a.el)
+    })
+
+    it('moving a child to another parent takes it out of the old parent list', () => {
+        const oldParent = Base('div')
+        const newParent = Base('div')
+        const child = Base('span')
+        oldParent.append(child)
+
+        newParent.append(child)
+        oldParent.empty()
+
+        expect(oldParent.getChildren()).toEqual([])
+        expect(newParent.getChildren()).toEqual([child])
+        expect(newParent.el.contains(child.el)).toBe(true)
+    })
+
+    it('prepend() and appendAfter() keep the order of their arguments', () => {
+        const parent = Base('div')
+        const ref = Base('span')
+        const a = Base('span')
+        const b = Base('span')
+        const c = Base('span')
+        const d = Base('span')
+        parent.append(ref)
+
+        parent.prepend(a, b)
+        parent.appendAfter(ref, c, d)
+
+        expect(parent.getChildren()).toEqual([a, b, ref, c, d])
+        expect([...parent.el.children]).toEqual([a.el, b.el, ref.el, c.el, d.el])
+    })
+
+    it('prepend() goes before text that is not a component', () => {
+        const parent = Base('button')
+        const icon = Base('span')
+        parent.text('Save')
+
+        parent.prepend(icon)
+
+        expect(parent.el.firstChild).toBe(icon.el)
+    })
+
+    it('remove() keeps the subtree, so the component can be appended again', () => {
+        const parent = Base('div')
+        document.body.appendChild(parent.el)
+        ;(parent as any).isMounted = true
+        const card = Base('div')
+        const title = Base('span')
+        card.append(title)
+        parent.append(card)
+        const titleUnmounted = vi.fn()
+        const titleMounted = vi.fn()
+        title.on('unmounted', titleUnmounted)
+        title.on('mounted', titleMounted)
+
+        card.remove()
+        expect(titleUnmounted).toHaveBeenCalledTimes(1)
+        expect(title.isMounted).toBe(false)
+
+        parent.append(card)
+        expect(card.el.contains(title.el)).toBe(true)
+        expect(card.getChildren()).toEqual([title])
+        expect(titleMounted).toHaveBeenCalledTimes(1)
+    })
+
     it('append() attaches a resolved Promise child once it settles', async () => {
         const parent = Base('div')
         const child = Base('span')

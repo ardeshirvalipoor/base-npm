@@ -54,6 +54,20 @@ const markMounted = (component: AnyComponent) => {
     component.getChildren().forEach(markMounted)
 }
 
+// The subtree leaves the document but stays together, so a removed
+// component can be appended again as it was.
+const markUnmounted = (component: AnyComponent) => {
+    component.getChildren().forEach(markUnmounted)
+    component.isMounted = false
+    component.emit('unmounted')
+}
+
+// A component is in one children list at a time. Before it moves, it
+// leaves the list it is in, which can be the list it moves within.
+const leaveParent = (c: AnyComponent) => {
+    if (c.parent) c.parent._setChildren(c.parent.getChildren().filter(x => x !== c))
+}
+
 export function createAppender(base: AnyComponent): IAppender {
     let children: AnyComponent[] = []
 
@@ -64,6 +78,20 @@ export function createAppender(base: AnyComponent): IAppender {
     watch(base)
     initObserver()
 
+    // Called once c is in its new place in the DOM and in `children`
+    const adopt = (c: AnyComponent) => {
+        c.parent = base
+        unwatch(c) // No longer pending - has parent
+        if (base.isMounted) markMounted(c)
+    }
+
+    const add = (c: AnyComponent) => {
+        leaveParent(c)
+        base.el.appendChild(c.el)
+        children.push(c)
+        adopt(c)
+    }
+
     return {
         getChildren: () => children,
 
@@ -72,36 +100,22 @@ export function createAppender(base: AnyComponent): IAppender {
         append(...args: (AnyComponent | false | null | undefined)[]) {
             for (const c of args) {
                 if (!c) continue
-                if (c instanceof Promise) {
-                    c.then(resolved => {
-                        if (!resolved?.el) return
-                        base.el.appendChild(resolved.el)
-                        children.push(resolved)
-                        resolved.parent = base
-                        unwatch(resolved) // No longer pending
-                        if (base.isMounted) markMounted(resolved)
-                    })
-                    continue
-                }
-                if (!c.el) continue
-                base.el.appendChild(c.el)
-                children.push(c)
-                c.parent = base
-                unwatch(c) // No longer pending - has parent
-                if (base.isMounted) markMounted(c)
+                if (c instanceof Promise) c.then(resolved => { if (resolved?.el) add(resolved) })
+                else if (c.el) add(c)
             }
             base.emit('append', args)
             return base
         },
 
+        // prepend() and appendAfter() put each one right after the same
+        // spot, so they go last one first to keep the order given.
         prepend(...args: AnyComponent[]) {
-            for (const c of args) {
+            for (const c of args.slice().reverse()) {
                 if (!c?.el) continue
+                leaveParent(c)
                 base.el.insertBefore(c.el, base.el.firstChild)
                 children.unshift(c)
-                c.parent = base
-                unwatch(c)
-                if (base.isMounted) markMounted(c)
+                adopt(c)
             }
             base.emit('prepend', args)
             return base
@@ -110,25 +124,21 @@ export function createAppender(base: AnyComponent): IAppender {
         appendBefore(ref: AnyComponent, ...args: AnyComponent[]) {
             for (const c of args) {
                 if (!c?.el) continue
+                leaveParent(c)
                 base.el.insertBefore(c.el, ref.el)
-                const idx = children.indexOf(ref)
-                children.splice(idx, 0, c)
-                c.parent = base
-                unwatch(c)
-                if (base.isMounted) markMounted(c)
+                children.splice(children.indexOf(ref), 0, c)
+                adopt(c)
             }
             return base
         },
 
         appendAfter(ref: AnyComponent, ...args: AnyComponent[]) {
-            for (const c of args) {
+            for (const c of args.slice().reverse()) {
                 if (!c?.el) continue
+                leaveParent(c)
                 base.el.insertBefore(c.el, ref.el.nextSibling)
-                const idx = children.indexOf(ref)
-                children.splice(idx + 1, 0, c)
-                c.parent = base
-                unwatch(c)
-                if (base.isMounted) markMounted(c)
+                children.splice(children.indexOf(ref) + 1, 0, c)
+                adopt(c)
             }
             return base
         },
@@ -139,13 +149,8 @@ export function createAppender(base: AnyComponent): IAppender {
         },
 
         remove() {
-            children.forEach(c => c.remove())
-            if (base.parent) {
-                const parentChildren = base.parent.getChildren().filter(c => c !== base)
-                base.parent._setChildren(parentChildren)
-            }
-            base.isMounted = false
-            base.emit('unmounted')
+            leaveParent(base)
+            markUnmounted(base)
             unwatch(base)
             base.el.remove()
         },
