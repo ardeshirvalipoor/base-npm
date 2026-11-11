@@ -69,13 +69,17 @@ The single biggest source of non-idiomatic code is reaching for raw JS / DOM / w
 | Text content          | `el.textContent = 'x'`                                 | `c.text('x')`                                                       |
 | HTML content          | `el.innerHTML = '<b>x</b>'`                            | `c.html('<b>x</b>')`                                                |
 | Attribute             | `el.setAttribute('data-x', 'y')` / `getAttribute(...)` | `c.attr('data-x', 'y')` / `c.attr('data-x')`                        |
+| Remove attribute      | `el.removeAttribute('data-x')`                         | `c.attr('data-x', null)`                                            |
 | Inline style          | `el.style.color = 'red'`                               | `c.style({ color: 'red' })`                                         |
+| Custom property       | `el.style.setProperty('--accent', color)`              | `c.style({ '--accent': color })`                                    |
 | Component event bus   | callbacks in options / ad-hoc emitter                  | `c.emit('save', payload)` + `parent.on('save', h)`                  |
 | Local storage         | `localStorage.setItem` / `getItem` (+ manual JSON)     | `ldb.set(key, obj)` / `ldb.get(key)`                                |
 | IndexedDB             | raw `indexedDB...` boilerplate                         | `idb('app').save(store, item)` / `.find(store, query)` / `.get(...)` |
 | HTTP                  | `fetch('/api/x').then(r => r.json())`                  | `await http.get('/api/x')` (with request dedup)                     |
 | Cross-component state | window globals, ad-hoc event buses                     | `state.set(k, v)` / `state.get(k)` / `state.on(k, h)`               |
 | SPA navigation        | `history.pushState` + manual handlers                  | `router.goto('/path')` / `router.on('change', h)`                   |
+
+`addClass` and `removeClass` skip empty and false values, so a condition can sit in the call: `c.addClass(styles.row, done && styles.done)`.
 
 ### Native HTML elements: factory list
 
@@ -103,6 +107,15 @@ import { Base } from '@codesuma/baseline'
 const figure = Base('figure')
 figure.addClass(styles.figure)
 figure.on('click', () => ...)
+```
+
+The parts inside an `<svg>`, such as `<path>` and `<circle>`, come from `BaseSVG('tag')` the same way:
+
+```typescript
+import { SVG, BaseSVG } from '@codesuma/baseline'
+
+const icon = SVG('0 0 24 24')
+icon.append(BaseSVG('path').attr('d', 'M4 12h16'))
 ```
 
 ### Antipattern → idiomatic

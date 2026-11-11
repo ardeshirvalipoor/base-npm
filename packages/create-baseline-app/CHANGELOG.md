@@ -1,5 +1,15 @@
 # @codesuma/create-baseline-app
 
+## 1.0.7
+
+### Patch Changes
+
+- - The app is named after its folder. `create-baseline-app .` and `create-baseline-app apps/shop` wrote `.` and `apps/shop` as the name in `package.json` and in the titles of the AI files.
+  - A flag such as `--help` prints the usage. It used to create a folder named `--help` and install into it.
+  - `package.json` says the tool needs Node 18 or later.
+  - New apps ask for `@codesuma/baseline` 1.3.0 or later. `AI_GUIDE.md` shows what that version adds: `style()` with custom properties, `attr(name, null)`, `addClass()` with conditions, and `BaseSVG`.
+  - The package ships a `LICENSE` file.
+
 ## 1.0.6
 
 ### Patch Changes

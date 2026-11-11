@@ -1,6 +1,6 @@
 {
   "name": "@codesuma/create-baseline-app",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Create a new Baseline app with a single command",
   "bin": {
     "create-baseline-app": "bin/cli.js"
@@ -9,6 +9,9 @@
     "bin/",
     "template/"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "keywords": [
     "baseline",
     "create",

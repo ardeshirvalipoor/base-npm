@@ -48,17 +48,26 @@ async function main() {
     console.log(`${BOLD}  ▲ Create Baseline App${RESET}`)
     console.log()
 
-    let projectName = process.argv[2]
+    let target = process.argv[2]
 
-    if (!projectName) {
-        projectName = await ask(`  ${BOLD}Project name:${RESET} `)
-        if (!projectName) {
+    // There are no flags. Without this, `--help` made a folder named --help.
+    if (target && target.startsWith('-')) {
+        console.log('  Usage: create-baseline-app <project-name>')
+        console.log()
+        return
+    }
+
+    if (!target) {
+        target = await ask(`  ${BOLD}Project name:${RESET} `)
+        if (!target) {
             console.log('  Please provide a project name.')
             process.exit(1)
         }
     }
 
-    const projectPath = path.resolve(process.cwd(), projectName)
+    // The name is the folder's own name, so `.` and `apps/shop` give a real one
+    const projectPath = path.resolve(process.cwd(), target)
+    const projectName = path.basename(projectPath)
 
     if (fs.existsSync(projectPath)) {
         const files = fs.readdirSync(projectPath)
@@ -105,7 +114,7 @@ async function main() {
     console.log()
     console.log(`  ${BOLD}Next steps:${RESET}`)
     console.log()
-    console.log(`    ${CYAN}cd${RESET} ${projectName}`)
+    if (projectPath !== process.cwd()) console.log(`    ${CYAN}cd${RESET} ${target}`)
     console.log(`    ${CYAN}npm run dev${RESET}       ${DIM}# Build (watch mode) + serve${RESET}`)
     console.log()
     console.log(`  ${DIM}Or separately:${RESET}`)
