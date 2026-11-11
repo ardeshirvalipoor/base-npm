@@ -13,9 +13,11 @@ export function createEmitter<T extends Record<string, any> = Record<string, any
         },
 
         once(event, handler) {
+            // Off first, so a handler that throws does not stay on. The result
+            // goes back to emitAsync(), which waits for it.
             const wrapper = (payload: any) => {
-                handler(payload)
                 this.off(event, wrapper as any)
+                return handler(payload)
             }
             return this.on(event, wrapper as any)
         },

@@ -232,4 +232,50 @@ describe('router', () => {
 
         expect(router.getPath()).toBe('/home')
     })
+
+    it('decodes a parameter', async () => {
+        const { router, view } = setup()
+        const tagPage = Page()
+        let received: IRouteEvent | undefined
+        tagPage.on('enter', (e: IRouteEvent) => { received = e })
+
+        router.routes({ '/tags/:tag': () => tagPage }, view)
+        await router.goto('/tags/' + encodeURIComponent('سلام دنیا'))
+
+        expect(received?.params).toEqual({ tag: 'سلام دنیا' })
+        expect(router.getParams()).toEqual({ tag: 'سلام دنیا' })
+    })
+
+    it('leaves a parameter that cannot be decoded as it came', async () => {
+        const { router, view } = setup()
+        const tagPage = Page()
+        let received: IRouteEvent | undefined
+        tagPage.on('enter', (e: IRouteEvent) => { received = e })
+
+        router.routes({ '/tags/:tag': () => tagPage }, view)
+        await router.goto('/tags/100%')
+
+        expect(received?.params).toEqual({ tag: '100%' })
+    })
+
+    it('still opens the page when the browser cannot store the data of goto()', async () => {
+        const { router, view } = setup()
+        const edit = Page()
+        let received: IRouteEvent | undefined
+        edit.on('enter', (e: IRouteEvent) => { received = e })
+        const data = { onSave: () => {} }
+        // What a browser does with a function in the state. jsdom lets it through.
+        const pushState = history.pushState.bind(history)
+        vi.spyOn(history, 'pushState').mockImplementation((state, unused, url) => {
+            if (state) throw new DOMException('could not be cloned', 'DataCloneError')
+            pushState(state, unused, url)
+        })
+
+        router.routes({ '/a': Page, '/edit': () => edit }, view)
+        await router.goto('/a')
+        await router.goto('/edit', data)
+
+        expect(received?.data).toBe(data)
+        expect(window.location.pathname).toBe('/edit')
+    })
 })

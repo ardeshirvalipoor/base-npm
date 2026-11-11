@@ -6,8 +6,8 @@ Thanks for your interest in contributing to Baseline! This guide will help you g
 
 ```bash
 # Clone the repo
-git clone https://github.com/ardeshirvalipoor/base-ui.git
-cd base-ui
+git clone https://github.com/ardeshirvalipoor/base-npm.git
+cd base-npm
 
 # Install all workspace dependencies
 npm install
@@ -25,7 +25,7 @@ npm run start:example
 The library lives in `packages/baseline/`. The example app is in `examples/demo-app/`.
 
 ```
-base-ui/
+base-npm/
 ├── packages/
 │   └── baseline/         ← THE LIBRARY (published to npm)
 │       ├── components/

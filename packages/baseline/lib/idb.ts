@@ -36,6 +36,10 @@ const cache = (name: string, db: IDBDatabase) => {
     resetIdleTimer(name)
 }
 
+// Calls that come while the database is opening wait for that one opening.
+// A connection each would leave all but the last one open for good.
+const opening: Record<string, Promise<IDBDatabase>> = {}
+
 const getConnection = (name: string): Promise<IDBDatabase> => {
     // Reuse cached connection
     if (connections[name]) {
@@ -43,14 +47,17 @@ const getConnection = (name: string): Promise<IDBDatabase> => {
         return Promise.resolve(connections[name])
     }
 
-    return new Promise((resolve, reject) => {
-        const req = indexedDB.open(name)
-        req.onsuccess = () => {
-            cache(name, req.result)
-            resolve(req.result)
-        }
-        req.onerror = () => reject(req.error)
-    })
+    if (!opening[name]) {
+        opening[name] = new Promise<IDBDatabase>((resolve, reject) => {
+            const req = indexedDB.open(name)
+            req.onsuccess = () => {
+                cache(name, req.result)
+                resolve(req.result)
+            }
+            req.onerror = () => reject(req.error)
+        }).finally(() => delete opening[name])
+    }
+    return opening[name]
 }
 
 const resetIdleTimer = (name: string) => {
@@ -84,14 +91,22 @@ const withStore = async <T>(
     return new Promise((resolve, reject) => {
         const tx = db.transaction(storeName, mode)
         const store = tx.objectStore(storeName)
-        const req = fn(store)
+        let req: IDBRequest | void
+        try {
+            req = fn(store)
+        } catch (err) {
+            // Without the abort, the transaction would still commit what
+            // fn() asked for before it threw: the first items of a list.
+            tx.abort()
+            throw err
+        }
 
         tx.oncomplete = () => {
             resolve(req ? (req.result as T) : (undefined as T))
         }
-        tx.onerror = () => reject(tx.error)
-        // A transaction can abort with no error event, for example when
-        // storage is full at commit. Without this the promise never settles.
+        // Every failure ends in an abort: a request that fails, or storage
+        // that is full at commit. Only then does tx.error hold the cause.
+        // In tx.onerror it is still null.
         tx.onabort = () => reject(tx.error)
     })
 }
@@ -128,6 +143,18 @@ const withCursor = async <T>(
         else if (lte !== undefined) range = IDBKeyRange.upperBound(lte)
         else if (lt !== undefined) range = IDBKeyRange.upperBound(lt, true)
 
+        tx.onabort = () => reject(tx.error)
+
+        // Going forward, one getAll() does the work of a cursor step per
+        // item. It has no direction, and it reads a count of 0 as no limit.
+        // It throws on a count past 2^32 - 1, so a limit that large, such as
+        // Infinity, goes in as no count: all of them.
+        if (!reverse && limit > 0) {
+            const all = source.getAll(range, limit < 2 ** 32 ? limit : undefined)
+            all.onsuccess = () => resolve(all.result)
+            return
+        }
+
         const req = source.openCursor(range, reverse ? 'prev' : 'next')
         const results: T[] = []
 
@@ -140,8 +167,6 @@ const withCursor = async <T>(
                 resolve(results)
             }
         }
-        tx.onerror = () => reject(tx.error)
-        tx.onabort = () => reject(tx.error)
     })
 }
 

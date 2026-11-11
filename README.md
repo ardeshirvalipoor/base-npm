@@ -332,7 +332,7 @@ bar.style({ width: `${percent}%` })
 tooltip.style({ top: `${y}px`, left: `${x}px` })
 ```
 
-`style()` cannot set CSS custom properties such as `--accent`. Use `card.el.style.setProperty('--accent', color)` for those.
+`style()` also sets CSS custom properties. Give them the name they have in CSS: `card.style({ '--accent': color })`.
 
 **Reuse a look** by wrapping a factory. Every primary button in the app then comes from one place:
 
@@ -580,7 +580,7 @@ The `enter` event carries these fields:
 
 | Field | Value |
 |---|---|
-| `params` | Values from the path, such as `{ id: '42' }` for `/users/:id` |
+| `params` | Values from the path, decoded, such as `{ id: '42' }` for `/users/:id` |
 | `query` | Values from the query string, such as `{ q: 'tea' }` |
 | `from` | The path the user came from |
 | `to` | The path being opened |
@@ -592,6 +592,8 @@ Good to know:
 - `exit` handlers can be async. The router waits for them before it shows the next page.
 - Each path gets its own page. `/users/1` and `/users/2` are two pages, and both stay in the DOM. Call `router.destroyPage(path)` to drop one. The next visit builds it again.
 - `goto()` to the current path does nothing, even when the query string differs.
+- The values in `params` are decoded. Encode a value again when you build a path from it: `router.goto('/tags/' + encodeURIComponent(tag))`.
+- The browser keeps `data` with the history entry, so the page gets it again when the user comes back to that entry. The browser cannot keep a function or an element. Such `data` still reaches the page, but only on the way in.
 - `router.on('change', handler)` runs on every navigation. Use it for things outside the pages, such as a menu that marks the current page.
 - `Page()` is a fixed, full-screen layer with a white background and 60px of padding on each side. To change its look or its transition, write your own page function the same way. Listen to `enter` and `exit`, and switch classes.
 - When the user reloads, the browser asks your server for the current path. Set up the server to answer every app path with `index.html`.
@@ -814,17 +816,19 @@ Every factory returns a component made by `Base`. All components share these mem
 | `destroy()` | Does what `remove()` does, then drops all handlers. |
 | `text(value)` | Sets the text. |
 | `html(value)` | Sets the HTML. Never pass it text from users. |
-| `style(styles, delay?)` | Sets inline styles, named in camelCase. With a delay in milliseconds, sets them later. |
-| `addClass(...names)` | Adds classes. |
-| `removeClass(...names)` | Removes classes. |
+| `style(styles, delay?)` | Sets inline styles, named in camelCase. A custom property keeps its CSS name, such as `--accent`. With a delay in milliseconds, sets them later. |
+| `addClass(...names)` | Adds classes. Skips empty and false values, so a condition can sit in the call. |
+| `removeClass(...names)` | Removes classes. Skips the same values. |
 | `toggleClass(name, on?)` | Adds the class if it is missing and removes it if it is there. With `on`, adds it when `on` is true and removes it when `on` is false. |
-| `attr(name, value?)` | Sets an attribute. Without a value, returns the attribute. |
+| `attr(name, value?)` | Sets an attribute. Without a value, returns the attribute. With `null`, removes it. |
 | `on(event, handler)` | Adds a handler. `event` can be one name or a list of names. Native DOM events such as `click` work too, and the handler receives the browser's event. |
 | `once(event, handler)` | Adds a handler that runs one time. |
 | `off(event, handler?)` | Removes a handler. Without a handler, removes every handler for the event. |
 | `emit(event, payload?)` | Calls the event's handlers with the payload. |
 | `emitAsync(event, payload?)` | Like `emit`, but waits for each async handler in turn. |
 | `removeAllListeners()` | Removes every handler. |
+
+The methods that add children, set content, set styles or handle events return the component, so calls chain: `Button('Save').addClass(styles.save).attr('data-ripple', '')`. The result keeps the factory's own methods, such as `disable()`.
 
 ### Element factories
 
@@ -842,6 +846,7 @@ Every factory returns a component made by `Base`. All components share these mem
 | `Canvas(width, height)` | `<canvas>` | Adds `ctx`, the 2D context, and `resize(width, height)`. |
 | `SVG(viewBox, height?)` | `<svg>` | A string sets `viewBox`. A number sets `viewBox`, `width` and `height`. |
 | `Base(tag)` | Any tag | |
+| `BaseSVG(tag)` | Any SVG tag, such as `<path>` | For the parts inside an `SVG()`. |
 | `Page()` | A full-screen `<div>` | See [Routing](#7-routing-and-pages). Adds `showInstant()`, which shows the page with no animation, and `exitDown()`. |
 
 `Input` methods:
@@ -954,7 +959,7 @@ Every method returns `{ status, data }`. `data` is the parsed JSON when the resp
 | `uuidv4()` | Returns a random version 4 UUID. |
 | `createStyler`, `createContent` | The building blocks that `Base` uses. You rarely need them. |
 
-The exported types are `IBaseComponent`, `IRouteEvent`, `IEmitter`, `IStyler`, `IContent`, `IDatabase` and `CS`. `CS` is the type of a style object.
+The exported types are `IBaseComponent`, `IBaseSVGComponent`, `IRouteEvent`, `IEmitter`, `IStyler`, `IContent`, `IDatabase` and `CS`. `CS` is the type of a style object. `Input` has its own: `InputType`, `InputOptions`, `IInputComponent`, `ITextAreaComponent` and `ICheckboxComponent`.
 
 ### Helpers
 

@@ -17,9 +17,10 @@ const pendingRoots: Set<Ref> = new Set()
 const refs = new WeakMap<AnyComponent, Ref>()
 
 const watch = (c: AnyComponent) => {
-    const ref: Ref = WeakRefCtor ? new WeakRefCtor(c) : { deref: () => c }
-    refs.set(c, ref)
+    let ref = refs.get(c)
+    if (!ref) refs.set(c, ref = WeakRefCtor ? new WeakRefCtor(c) : { deref: () => c })
     pendingRoots.add(ref)
+    initObserver()
 }
 
 const unwatch = (c: AnyComponent) => {
@@ -47,6 +48,25 @@ const initObserver = () => {
     observer.observe(document.body, { childList: true, subtree: true })
 }
 
+// Components made in this task that have no parent yet. Nearly all get one
+// before the task ends, and so never need a weak reference or the observer.
+// The rest are looked at once, when the task is over. `scheduled` keeps that
+// to one look per task: the set empties and fills again with every row of a
+// list that is being built.
+const fresh: Set<AnyComponent> = new Set()
+let scheduled = false
+
+const checkFresh = () => {
+    scheduled = false
+    const made = Array.from(fresh)
+    fresh.clear()
+    for (const c of made) {
+        if (c.isMounted) continue
+        if (document.body.contains(c.el)) markMounted(c)
+        else watch(c)
+    }
+}
+
 const markMounted = (component: AnyComponent) => {
     if (component.isMounted) return
     component.isMounted = true
@@ -65,7 +85,9 @@ const markUnmounted = (component: AnyComponent) => {
 // A component is in one children list at a time. Before it moves, it
 // leaves the list it is in, which can be the list it moves within.
 const leaveParent = (c: AnyComponent) => {
-    if (c.parent) c.parent._setChildren(c.parent.getChildren().filter(x => x !== c))
+    if (!c.parent) return
+    c.parent._setChildren(c.parent.getChildren().filter(x => x !== c))
+    c.parent = undefined
 }
 
 export function createAppender(base: AnyComponent): IAppender {
@@ -75,12 +97,16 @@ export function createAppender(base: AnyComponent): IAppender {
     const setChildren = (c: AnyComponent[]) => { children = c }
 
     // Register for root detection (will be cleaned up once mounted)
-    watch(base)
-    initObserver()
+    if (!scheduled) {
+        scheduled = true
+        queueMicrotask(checkFresh)
+    }
+    fresh.add(base)
 
     // Called once c is in its new place in the DOM and in `children`
     const adopt = (c: AnyComponent) => {
         c.parent = base
+        fresh.delete(c)
         unwatch(c) // No longer pending - has parent
         if (base.isMounted) markMounted(c)
     }
@@ -143,21 +169,33 @@ export function createAppender(base: AnyComponent): IAppender {
             return base
         },
 
+        // empty() and destroy() take the list out first. Each child leaves
+        // its parent's list as it goes, and on the full list that is one
+        // pass over the list per child.
         empty() {
-            children.forEach(c => c.remove())
+            const removed = children
             children = []
+            removed.forEach(c => c.remove())
         },
 
         remove() {
+            // A root came in through raw DOM calls and can come back the
+            // same way, so it is watched again.
+            const root = !base.parent
             leaveParent(base)
             markUnmounted(base)
-            unwatch(base)
+            if (root) watch(base)
             base.el.remove()
         },
 
         destroy() {
-            children.forEach(c => c.destroy())
+            const removed = children
+            children = []
+            removed.forEach(c => c.destroy())
             base.remove()
+            // Gone for good, so nothing waits for it to come back
+            unwatch(base)
+            fresh.delete(base)
             base.removeAllListeners()
         }
     }
@@ -167,10 +205,10 @@ export interface IAppender {
     getChildren(): AnyComponent[]
     /** @internal */
     _setChildren(c: AnyComponent[]): void
-    append(...args: (AnyComponent | Promise<AnyComponent> | false | null | undefined)[]): AnyComponent
-    prepend(...args: AnyComponent[]): AnyComponent
-    appendBefore(ref: AnyComponent, ...args: AnyComponent[]): AnyComponent
-    appendAfter(ref: AnyComponent, ...args: AnyComponent[]): AnyComponent
+    append(...args: (AnyComponent | Promise<AnyComponent> | false | null | undefined)[]): this
+    prepend(...args: AnyComponent[]): this
+    appendBefore(ref: AnyComponent, ...args: AnyComponent[]): this
+    appendAfter(ref: AnyComponent, ...args: AnyComponent[]): this
     empty(): void
     remove(): void
     destroy(): void

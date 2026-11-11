@@ -18,9 +18,23 @@ function proxyDomEvents(component: any, el: Element) {
         return _on(event, handler)
     }
 
+    // Takes the DOM listeners of an event off: the one given, or every one
+    // the emitter holds for it.
+    const unlisten = (event: string, handler?: Function) => {
+        if (!isDomEvent(event)) return
+        const handlers = handler ? [handler] : component.getListeners()[event] || []
+        for (const h of handlers) el.removeEventListener(event, h as EventListener)
+    }
+
     component.off = (event: string, handler?: Function) => {
-        if (handler && isDomEvent(event)) el.removeEventListener(event, handler as EventListener)
+        unlisten(event, handler)
         return _off(event, handler)
+    }
+
+    const _removeAll = component.removeAllListeners
+    component.removeAllListeners = () => {
+        for (const event in component.getListeners()) unlisten(event)
+        _removeAll()
     }
 }
 

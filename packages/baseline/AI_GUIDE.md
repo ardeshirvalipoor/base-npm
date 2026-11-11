@@ -106,6 +106,7 @@ export const Form = (action = '') => {
 **How it works:**
 - When `.on(event, handler)` is called, if `'on' + event` exists on the element (e.g. `onclick`, `onfocus`), the handler is also registered via `el.addEventListener`
 - `.off(event, handler)` removes both the emitter listener and the DOM listener
+- `.off(event)` with no handler, and `removeAllListeners()`, remove every handler in both places
 - Custom/framework events (e.g. `'mounted'`, `'save'`) pass through the emitter only
 - This means consumers never need to use `el.addEventListener` directly
 

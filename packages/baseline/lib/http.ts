@@ -19,7 +19,9 @@ const request = async <T = any>(
 ): Promise<{ status: number; data: T }> => {
     // Content-Type only with a body. On a request to another domain, the
     // header makes the browser send a preflight request first.
-    const headers: Record<string, string> = body ? { 'Content-Type': 'application/json' } : {}
+    // false, 0 and '' are bodies too. Only null and undefined mean no body.
+    const hasBody = body != null
+    const headers: Record<string, string> = hasBody ? { 'Content-Type': 'application/json' } : {}
     Object.assign(headers, options.headers)
     if (options.auth) headers['Authorization'] = `Bearer ${options.auth}`
 
@@ -27,16 +29,14 @@ const request = async <T = any>(
         method,
         headers,
         credentials: 'include',
-        body: body ? JSON.stringify(body) : undefined
+        body: hasBody ? JSON.stringify(body) : undefined
     })
 
-    let data: T
-    const contentType = res.headers.get('content-type')
-    if (contentType?.includes('application/json')) {
-        data = await res.json()
-    } else {
-        data = await res.text() as any
-    }
+    // An empty body is not JSON, whatever the header says. A server often
+    // answers a DELETE that way.
+    const text = await res.text()
+    const isJson = res.headers.get('content-type')?.includes('application/json')
+    const data: T = text && isJson ? JSON.parse(text) : text
 
     return { status: res.status, data }
 }
@@ -74,8 +74,12 @@ export const http = {
         return new Promise<{ status: number; data: any }>((resolve, reject) => {
             const xhr = new XMLHttpRequest()
             xhr.open('POST', url)
-            if (options.auth) xhr.setRequestHeader('Authorization', `Bearer ${options.auth}`)
-            xhr.setRequestHeader('Content-Type', file.type)
+            // No Content-Type from here: the browser sends the file's own type
+            // unless a header names another. Set here as well, the two would
+            // go out joined, as "image/png, application/octet-stream".
+            const headers: Record<string, string> = { ...options.headers }
+            if (options.auth) headers['Authorization'] = `Bearer ${options.auth}`
+            for (const name in headers) xhr.setRequestHeader(name, headers[name])
 
             if (options.onProgress) {
                 xhr.upload.onprogress = (e) => {

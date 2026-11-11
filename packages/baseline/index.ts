@@ -2,8 +2,8 @@
 // Main entry point
 
 // Core component factory
-export { Base } from './components/base'
-export type { IBaseComponent } from './components/base'
+export { Base, BaseSVG } from './components/base'
+export type { IBaseComponent, IBaseSVGComponent } from './components/base'
 
 // Native components
 export { Div } from './components/native/div'
@@ -12,6 +12,7 @@ export { P } from './components/native/p'
 export { H1, H2, H3, H4, H5, H6 } from './components/native/h'
 export { Button } from './components/native/button'
 export { Input } from './components/native/input'
+export type { InputType, InputOptions, IInputComponent, ITextAreaComponent, ICheckboxComponent } from './components/native/input'
 export { A } from './components/native/a'
 export { Img } from './components/native/img'
 export { Select } from './components/native/select'

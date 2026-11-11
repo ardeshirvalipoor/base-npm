@@ -1,5 +1,48 @@
 # @codesuma/baseline
 
+## 1.3.0
+
+### Minor Changes
+
+- Add the small things apps kept reaching past Baseline for:
+
+  - `style()` sets CSS custom properties: `card.style({ '--accent': color })`. Before, this needed `card.el.style.setProperty('--accent', color)`. A value of `undefined` leaves the property as it is, as it does for every other property.
+  - `attr(name, null)` removes an attribute.
+  - `addClass()` and `removeClass()` skip empty and false values, so a condition can sit in the call: `row.addClass(styles.row, done && styles.done)`. An empty string used to throw, and `false` added a class named `false`.
+  - A chain keeps the component's own type. The methods that chain now return `this`, so `Button('Save').addClass(styles.save).disable()` type-checks. `attr()` has separate signatures for reading and writing, so `attr('title')` is `string | null`.
+  - `index.ts` exports `BaseSVG` and `IBaseSVGComponent`, for the parts inside an `SVG()`, and the `Input` types: `InputType`, `InputOptions`, `IInputComponent`, `ITextAreaComponent` and `ICheckboxComponent`.
+  - The package ships a `LICENSE` file. `CONTRIBUTING.md` names the repository as it is now.
+
+### Patch Changes
+
+- Make the slow paths faster. The numbers are from Chrome 156 on a desktop, old and new code in the same run:
+
+  - `empty()` and `destroy()` no longer slow down with the square of the list. Each child that left scanned its parent's whole list. Emptying 5,000 rows took 59 ms and now takes 10 ms. For 20,000 rows it went from 751 ms to 34 ms.
+  - Making components is about 15% faster: 5,000 rows of three components took 45 ms and now take 38 ms. Every new component used to get a weak reference and a place in the set that waits for `mounted`, and nearly all of them left it a moment later. Now only a component that still has no parent at the end of the task gets one.
+  - `formatDate()`, `formatTime()` and `formatCurrency()` keep one `Intl` formatter per locale, and per currency, instead of building one on every call. 2,000 calls of each took 205 ms and now take 4 ms. A formatter stays in the time zone it was built in, so the date ones are built again when the device's offset from UTC changes.
+  - `idb.find()` going forward reads its items with one `getAll()` instead of a cursor step per item: 1,000 items by index took 9.9 ms and now take 4.6 ms. A reverse `find()` still uses the cursor.
+  - `Page`: the browser no longer keeps a full-screen layer for each hidden page, because a page that has left is `visibility: hidden`.
+  - `package.json` declares `sideEffects`, so every bundler leaves out the parts an app does not import. Before, only the starter's Rollup setting did. A counter app built with default settings went from 5.2 KB to 3.5 KB minified.
+
+- Fix a round of bugs found by reading every file and testing each one:
+
+  - `off(event)` with no handler, and `removeAllListeners()`, now take the browser's listeners off too. Before, a real click still called a handler that `off('click')` had removed. `destroy()` uses the same path.
+  - `once()`: `emitAsync()` now waits for an async handler added with `once()`, so the router waits for `page.once('exit', ...)`. A `once()` handler that throws no longer stays on and runs again.
+  - `remove()` clears `parent`. It used to keep pointing at the old parent.
+  - A root added with `document.body.appendChild`, taken out with `remove()` and added again now gets `mounted` again. Before, it stayed unmounted, and children added to it later never got `mounted`.
+  - `Input` of type `range` sets its starting value after `min`, `max` and `step`. The browser fits a range value to the limits it has at that moment, so `{ value: 150, max: 200 }` started at 100.
+  - The router decodes route parameters. `/tags/سلام` gave `%D8%B3%D9%84%D8%A7%D9%85` as the value. A value that is badly encoded stays as it came. Encode a value again when you build a path from it.
+  - `router.goto(path, data)` no longer leaves a blank screen when `data` holds something the browser cannot keep in the history, such as a function or a component. `history.pushState` threw after the old page had left. The entry now goes in without the data, with a warning in the console, and the new page still gets `data` in its `enter` event.
+  - `http` no longer throws on a response that is marked as JSON and has an empty body, which servers often send after a DELETE. `data` is then an empty string.
+  - `http` sends a body of `false`, `0` or `''`. Only `null` and `undefined` mean no body.
+  - `http.upload()` sends the `headers` option. It ignored it. The file's own type still goes out as `Content-Type`, unless a header names another. A file with no type no longer sends an empty `Content-Type`.
+  - `idb`: a request that fails now rejects with its error. It rejected with `null`, because the code read the transaction's error before the browser had set it.
+  - `idb.save()` with a list stores nothing when one item cannot be stored. Before, the items ahead of the bad one were saved while the promise rejected.
+  - `idb`: calls that come together on a closed database share one connection. Each used to open its own, and only the last was ever closed.
+  - `initRipple()`: a tap held longer than 100 ms showed two ripples on a touch screen, because the browser sends a `mousedown` when the finger lifts. The ripple now listens to `pointerdown` alone, which comes once for a mouse, a finger or a pen. A disabled button does not ripple.
+  - `isIOS()` and `isMobile()` in `helpers/device` are true on an iPad, which reports the user agent of a Mac.
+  - `Page`: a page that has left is now `visibility: hidden`. Before, the Tab key still reached its buttons, and a field kept the keyboard focus after its page was gone. A field on such a page cannot take focus until the page enters again.
+
 ## 1.2.3
 
 ### Patch Changes

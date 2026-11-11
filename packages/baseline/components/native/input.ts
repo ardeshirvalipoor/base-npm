@@ -95,7 +95,6 @@ export function Input(placeholder = '', type: InputType = 'text', options: Input
     }
 
     // Attributes
-    if (options.value !== undefined) inputEl.value = String(options.value)
     if (options.accept) inputEl.setAttribute('accept', options.accept)
     if (options.name) inputEl.setAttribute('name', options.name)
     // ID goes on the input element normally, but if wrapped, user might expect ID on wrapper?
@@ -105,6 +104,8 @@ export function Input(placeholder = '', type: InputType = 'text', options: Input
     if (options.min !== undefined) inputEl.setAttribute('min', String(options.min))
     if (options.max !== undefined) inputEl.setAttribute('max', String(options.max))
     if (options.step !== undefined) inputEl.setAttribute('step', String(options.step))
+    // After min, max and step: a range fits its value to the limits it has then
+    if (options.value !== undefined) inputEl.value = String(options.value)
     if (options.autocomplete) inputEl.setAttribute('autocomplete', options.autocomplete)
     if (options.pattern) inputEl.setAttribute('pattern', options.pattern)
     if (options.multiple) inputEl.setAttribute('multiple', '')

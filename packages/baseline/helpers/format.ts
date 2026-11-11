@@ -7,8 +7,14 @@ export const formatNumber = (n: number, decimals?: number) => {
     return whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (fraction ? '.' + fraction : '')
 }
 
-export const formatCurrency = (n: number, currency = 'USD', locale = 'en-US') =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency }).format(n)
+// Building an Intl formatter costs far more than using one, so each locale
+// and currency keeps its own.
+const currencies: Record<string, Intl.NumberFormat> = {}
+
+export const formatCurrency = (n: number, currency = 'USD', locale = 'en-US') => {
+    const key = locale + ' ' + currency
+    return (currencies[key] || (currencies[key] = new Intl.NumberFormat(locale, { style: 'currency', currency }))).format(n)
+}
 
 export const formatPercent = (n: number, decimals = 0) =>
     (n * 100).toFixed(decimals) + '%'

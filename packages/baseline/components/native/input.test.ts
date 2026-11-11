@@ -5,6 +5,16 @@ afterEach(() => {
     document.body.innerHTML = ''
 })
 
+describe('Input range', () => {
+    it('keeps a starting value that max and step allow', () => {
+        // The browser fits a range value to the limits it has at that moment,
+        // so the value has to be set after them.
+        const range = Input('', 'range', { value: 150, min: 0, max: 200 })
+
+        expect(range.value()).toBe('150')
+    })
+})
+
 describe('Input checkbox/radio change events', () => {
     it('label-wrapped checkbox fires .on("change") exactly once per click, with the payload', () => {
         const checkbox = Input('Enable thing', 'checkbox')

@@ -28,8 +28,6 @@ export const initRipple = () => {
     initialized = true
     injectCSS('base-ripple', RIPPLE_CSS)
 
-    let touchedRecently = false
-
     const createRipple = (el: HTMLElement, x: number, y: number) => {
         const rect = el.getBoundingClientRect()
         const size = Math.max(rect.width, rect.height) * 2
@@ -47,20 +45,12 @@ export const initRipple = () => {
         ripple.addEventListener('animationend', () => ripple.remove())
     }
 
-    document.addEventListener('touchstart', (e) => {
-        const el = (e.target as HTMLElement).closest<HTMLElement>('[data-ripple]')
-        if (el) {
-            touchedRecently = true
-            createRipple(el, e.touches[0].clientX, e.touches[0].clientY)
-            setTimeout(() => touchedRecently = false, 100)
-        }
+    // One pointerdown comes for a press, from a mouse, a finger or a pen. A
+    // touch also sends a mousedown once the finger lifts, so listening to
+    // touchstart and mousedown showed two ripples for a slow tap. A disabled
+    // button gets pointerdown too, and must not answer a press.
+    document.addEventListener('pointerdown', (e) => {
+        const el = (e.target as HTMLElement).closest<HTMLElement>('[data-ripple]:not(:disabled)')
+        if (el) createRipple(el, e.clientX, e.clientY)
     }, { passive: true })
-
-    document.addEventListener('mousedown', (e) => {
-        if (touchedRecently) return
-        const el = (e.target as HTMLElement).closest<HTMLElement>('[data-ripple]')
-        if (el) {
-            createRipple(el, e.clientX, e.clientY)
-        }
-    })
 }

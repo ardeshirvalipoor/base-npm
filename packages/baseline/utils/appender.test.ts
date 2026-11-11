@@ -194,6 +194,84 @@ describe('appender', () => {
         expect(unmounted).toHaveBeenCalledTimes(1)
     })
 
+    it('remove() clears parent', () => {
+        const parent = Base('div')
+        const child = Base('span')
+        parent.append(child)
+
+        child.remove()
+
+        expect(child.parent).toBeUndefined()
+    })
+
+    it('a root put back with raw DOM calls after remove() is mounted again', async () => {
+        const root = Base('div')
+        const mounted = vi.fn()
+        root.on('mounted', mounted)
+        document.body.appendChild(root.el)
+        await tick()
+        expect(mounted).toHaveBeenCalledTimes(1)
+
+        root.remove()
+        document.body.appendChild(root.el)
+        await tick()
+
+        expect(root.isMounted).toBe(true)
+        expect(mounted).toHaveBeenCalledTimes(2)
+    })
+
+    it('a component made in one task and attached with raw DOM calls in a later one is mounted', async () => {
+        const root = Base('div')
+        const mounted = vi.fn()
+        root.on('mounted', mounted)
+        await tick()
+
+        document.body.appendChild(root.el)
+        await tick()
+
+        expect(mounted).toHaveBeenCalledTimes(1)
+    })
+
+    it('asks for one check per task, however many components the task makes', async () => {
+        const list = Base('div')
+        await tick() // The list is from an earlier task, so only the rows count
+        const queued = vi.spyOn(globalThis, 'queueMicrotask')
+
+        for (let i = 0; i < 3; i++) list.append(Base('span'))
+
+        expect(queued).toHaveBeenCalledTimes(1)
+        vi.restoreAllMocks()
+    })
+
+    it('stops watching for a component that is destroyed in the task that made it', async () => {
+        // A new copy of the module, so nothing from the other tests is waiting.
+        vi.resetModules()
+        const fresh = await import('../components/base')
+        const disconnect = vi.spyOn(MutationObserver.prototype, 'disconnect')
+
+        const tmp = fresh.Base('div')
+        tmp.destroy()
+        await tick()
+        document.body.appendChild(document.createElement('i'))
+        await tick()
+
+        expect(disconnect).toHaveBeenCalled()
+        vi.restoreAllMocks()
+    })
+
+    it('empty() keeps a child that an unmounted handler appends', () => {
+        const parent = Base('div')
+        const old = Base('span')
+        const fresh = Base('span')
+        parent.append(old)
+        old.on('unmounted', () => parent.append(fresh))
+
+        parent.empty()
+
+        expect(parent.getChildren()).toEqual([fresh])
+        expect(parent.el.contains(fresh.el)).toBe(true)
+    })
+
     it('empty() removes all children but keeps the parent itself', () => {
         const parent = Base('div')
         parent.append(Base('span'), Base('span'))

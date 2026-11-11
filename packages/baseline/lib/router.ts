@@ -20,6 +20,16 @@ interface RouteConfig {
 
 type Routes = Record<string, RouteConfig | (() => IBaseComponent<any>)>
 
+// The path comes from the address bar, so a value can be badly encoded.
+// Such a value stays as it came.
+const decode = (value: string) => {
+    try {
+        return decodeURIComponent(value)
+    } catch {
+        return value
+    }
+}
+
 // Extract params from path like /users/:id
 const extractParams = (pattern: string, path: string): Record<string, string> | null => {
     const patternParts = pattern.split('/')
@@ -29,7 +39,7 @@ const extractParams = (pattern: string, path: string): Record<string, string> | 
     const params: Record<string, string> = {}
     for (let i = 0; i < patternParts.length; i++) {
         if (patternParts[i].startsWith(':')) {
-            params[patternParts[i].slice(1)] = pathParts[i]
+            params[patternParts[i].slice(1)] = decode(pathParts[i])
         } else if (patternParts[i] !== pathParts[i]) {
             return null
         }
@@ -110,7 +120,17 @@ export function createRouter() {
         // Update state
         currentPath = path
         if (!isBack && !initial) {
-            history.pushState(data, '', to)
+            try {
+                history.pushState(data, '', to)
+            } catch (err) {
+                // The browser keeps a copy of `data` with the history entry,
+                // and it cannot copy a function or an element. The old page
+                // has left by now, so the entry goes in without the data. The
+                // new page still gets `data` in its enter event. Anything
+                // else that went wrong fails again here, and is thrown.
+                console.warn(`Router: history.pushState failed for ${path}. Trying again without the data.`, err)
+                history.pushState(null, '', to)
+            }
         }
 
         // Get or create page

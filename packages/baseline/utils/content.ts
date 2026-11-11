@@ -17,8 +17,8 @@ export function createContent(base: Component): IContent {
 }
 
 export interface IContent {
-    text(content: string): Component
-    html(content: string): Component
+    text(content: string): this
+    html(content: string): this
 }
 
 export default createContent

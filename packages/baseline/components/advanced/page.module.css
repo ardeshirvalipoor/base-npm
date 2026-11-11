@@ -46,13 +46,17 @@
     pointer-events: none;
 }
 
-/* Initial hidden states for stacking */
+/* Initial hidden states for stacking. A page that has left is also taken out
+   of sight for the keyboard: opacity alone leaves its buttons in the tab order
+   and its fields in focus. The browser also stops drawing it. */
 .page.hiddenBelow {
     transform: translateY(60px);
     opacity: 0;
+    visibility: hidden;
 }
 
 .page.hiddenAbove {
     transform: translateY(-60px);
     opacity: 0;
+    visibility: hidden;
 }

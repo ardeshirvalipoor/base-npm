@@ -26,6 +26,29 @@ describe('DOM event proxy', () => {
         expect(handler).not.toHaveBeenCalled()
     })
 
+    it('off() with no handler takes the DOM listeners off too', () => {
+        const c = Base('button')
+        const handler = vi.fn()
+        c.on('click', handler)
+
+        c.off('click')
+        c.el.click()
+
+        expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('removeAllListeners() takes the DOM listeners off too', () => {
+        const c = Base('button')
+        const handler = vi.fn()
+        c.on(['click', 'focus'], handler)
+
+        c.removeAllListeners()
+        c.el.click()
+        c.el.dispatchEvent(new Event('focus'))
+
+        expect(handler).not.toHaveBeenCalled()
+    })
+
     it('once() on a DOM event fires one time', () => {
         const c = Base('div')
         const handler = vi.fn()

@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { formatNumber } from './format'
+import { formatNumber, formatCurrency } from './format'
+
+describe('formatCurrency', () => {
+    it('keeps each currency and locale apart when it reuses a formatter', () => {
+        const twice = () => [formatCurrency(1234.5), formatCurrency(1234.5, 'EUR'), formatCurrency(1234.5, 'EUR', 'de-DE')]
+
+        expect(twice()).toEqual(['$1,234.50', '€1,234.50', '1.234,50 €'])
+        expect(twice()).toEqual(['$1,234.50', '€1,234.50', '1.234,50 €'])
+    })
+})
 
 describe('formatNumber', () => {
     it('groups the whole part in thousands', () => {
